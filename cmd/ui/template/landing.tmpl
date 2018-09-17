@@ -1,0 +1,9 @@
+{{template "head.tmpl"}}
+<div class="jumbotron">
+    <h1 class="display-4">Safe</h1>
+    <p class="lead">Local storage to store secrets.</p>
+    <hr class="my-4">
+    <sign-form id="passphrase" action="/" sign-up="{{ .SignUp }}"></sign-form>
+</div>
+{{template "foot.tmpl"}}
+<script src="/js/sign-form.js"></script>
