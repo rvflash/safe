@@ -23,7 +23,7 @@ func Logout(app *app.Safe) PathHandler {
 // Handle implements the Handler interface.
 func (h *logoutPage) Handle(c *gin.Context) {
 	h.app.LogOut()
-	c.Redirect(http.StatusTemporaryRedirect, Home(h.app).Path())
+	c.Redirect(http.StatusTemporaryRedirect, Landing(h.app, false).Path())
 }
 
 // Path implements the PathHandler interface.

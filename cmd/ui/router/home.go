@@ -13,17 +13,18 @@ import (
 )
 
 type homePage struct {
-	app *app.Safe
+	app   *app.Safe
+	debug bool
 }
 
 // Home ...
-func Home(app *app.Safe) RenderHandler {
-	return &homePage{app: app}
+func Home(app *app.Safe, debug bool) RenderHandler {
+	return &homePage{app: app, debug: debug}
 }
 
 // Handle implements the Handler interface.
 func (h *homePage) Handle(c *gin.Context) {
-	c.HTML(http.StatusOK, h.PageName(), nil)
+	c.HTML(http.StatusOK, h.PageName(), gin.H{"IsDebug": h.debug})
 }
 
 // PageName implements the Handler interface.

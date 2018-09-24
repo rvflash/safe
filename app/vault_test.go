@@ -5,6 +5,7 @@
 package app_test
 
 import (
+	"fmt"
 	"net/url"
 	"testing"
 
@@ -12,71 +13,62 @@ import (
 	"github.com/rvflash/safe/app"
 )
 
-func vault(name, pass, rawURL, note string) url.Values {
-	m := make(url.Values)
-	if name != "" {
-		m[app.FormUser] = []string{name}
+func checkVault(v *safe.Vault, tag, name string, data app.Login) error {
+	var (
+		s string
+		u *url.URL
+	)
+	if s = v.Name(); s != name {
+		return fmt.Errorf("mismatch name: got=%q exp=%q", s, name)
 	}
-	if pass != "" {
-		m[app.FormPass] = []string{pass}
+	if s = v.Tag().Name(); s != tag {
+		return fmt.Errorf("mismatch tag name: got=%q exp=%q", s, tag)
 	}
-	if rawURL != "" {
-		m[app.FormURL] = []string{rawURL}
+	if s = v.Login().Name; s != data.Username {
+		return fmt.Errorf("mismatch username: got=%q exp=%q", s, data.Username)
 	}
-	if note != "" {
-		m[app.FormNote] = []string{note}
+	if s = v.Login().Password; s != data.Password {
+		return fmt.Errorf("mismatch username: got=%q exp=%q", s, data.Password)
 	}
-	return m
+	if u = v.Login().URL; u != nil && u.String() != data.URL {
+		return fmt.Errorf("mismatch username: got=%q exp=%q", s, data.URL)
+	}
+	if s = v.Login().Note; s != data.Note {
+		return fmt.Errorf("mismatch username: got=%q exp=%q", s, data.Note)
+	}
+	return nil
 }
 
 func TestSafe_CreateVault(t *testing.T) {
 	var dt = []struct {
 		app       *app.Safe
 		tag, name string
-		data      url.Values
+		data      app.Login
 		err       error
 	}{
 		{app: app.New(newService(), "", "", newSession()), err: app.ErrNotLogged},
 		{
 			app: loggedApp(),
 			tag: "tag", name: "vault",
-			data: vault("username", "password", "", ""),
+			data: app.Login{Username: "username", Password: "password"},
 		},
 		{
 			app: loggedApp(),
 			tag: "tag", name: "vault",
-			data: vault("username", "password", "http://localhost", "note"),
+			data: app.Login{Username: "username", Password: "password", URL: "http://localhost", Note: "note"},
 		},
 	}
 	var (
-		s     string
-		u     *url.URL
-		vault *safe.Vault
-		err   error
+		err error
+		v   *safe.Vault
 	)
 	for i, tt := range dt {
-		vault, err = tt.app.CreateVault(tt.name, tt.tag, tt.data)
+		v, err = tt.app.CreateVault(tt.name, tt.tag, tt.data)
 		if err != tt.err {
 			t.Errorf("%d. mismatch error: got=%q exp=%q", i, err, tt.err)
-		}
-		if err == nil {
-			if s = vault.Name(); s != tt.name {
-				t.Errorf("%d. mismatch name: got=%q exp=%q", i, s, tt.name)
-			}
-			if s = vault.Tag().Name(); s != tt.tag {
-				t.Errorf("%d. mismatch tag name: got=%q exp=%q", i, s, tt.tag)
-			}
-			if s = vault.Login().Name; s != tt.data.Get(app.FormUser) {
-				t.Errorf("%d. mismatch username: got=%q exp=%q", i, s, tt.data.Get(app.FormUser))
-			}
-			if s = vault.Login().Password; s != tt.data.Get(app.FormPass) {
-				t.Errorf("%d. mismatch username: got=%q exp=%q", i, s, tt.data.Get(app.FormPass))
-			}
-			if u = vault.Login().URL; u != nil && u.String() != tt.data.Get(app.FormURL) {
-				t.Errorf("%d. mismatch username: got=%q exp=%q", i, s, tt.data.Get(app.FormURL))
-			}
-			if s = vault.Login().Note; s != tt.data.Get(app.FormNote) {
-				t.Errorf("%d. mismatch username: got=%q exp=%q", i, s, tt.data.Get(app.FormNote))
+		} else if err == nil {
+			if err = checkVault(v, tt.tag, tt.name, tt.data); err != nil {
+				t.Errorf("%d. %s", i, err)
 			}
 		}
 	}
@@ -137,50 +129,32 @@ func TestSafe_UpdateVault(t *testing.T) {
 	var dt = []struct {
 		app       *app.Safe
 		tag, name string
-		data      url.Values
+		data      app.Login
 		err       error
 	}{
 		{app: app.New(newService(), "", "", newSession()), err: app.ErrNotLogged},
 		{
 			app: loggedApp(),
 			tag: "tag", name: "vault",
-			data: vault("username", "password", "", ""),
+			data: app.Login{Username: "username", Password: "password"},
 		},
 		{
 			app: loggedApp(),
 			tag: "tag", name: "vault",
-			data: vault("username", "password", "http://localhost", "note"),
+			data: app.Login{Username: "username", Password: "password", URL: "http://localhost", Note: "note"},
 		},
 	}
 	var (
-		s     string
-		u     *url.URL
-		vault *safe.Vault
-		err   error
+		err error
+		v   *safe.Vault
 	)
 	for i, tt := range dt {
-		vault, err = tt.app.UpdateVault(tt.name, tt.tag, tt.data)
+		v, err = tt.app.UpdateVault(tt.name, tt.tag, tt.data)
 		if err != tt.err {
 			t.Errorf("%d. mismatch error: got=%q exp=%q", i, err, tt.err)
-		}
-		if err == nil {
-			if s = vault.Name(); s != tt.name {
-				t.Errorf("%d. mismatch name: got=%q exp=%q", i, s, tt.name)
-			}
-			if s = vault.Tag().Name(); s != tt.tag {
-				t.Errorf("%d. mismatch tag name: got=%q exp=%q", i, s, tt.tag)
-			}
-			if s = vault.Login().Name; s != tt.data.Get(app.FormUser) {
-				t.Errorf("%d. mismatch username: got=%q exp=%q", i, s, tt.data.Get(app.FormUser))
-			}
-			if s = vault.Login().Password; s != tt.data.Get(app.FormPass) {
-				t.Errorf("%d. mismatch username: got=%q exp=%q", i, s, tt.data.Get(app.FormPass))
-			}
-			if u = vault.Login().URL; u != nil && u.String() != tt.data.Get(app.FormURL) {
-				t.Errorf("%d. mismatch username: got=%q exp=%q", i, s, tt.data.Get(app.FormURL))
-			}
-			if s = vault.Login().Note; s != tt.data.Get(app.FormNote) {
-				t.Errorf("%d. mismatch username: got=%q exp=%q", i, s, tt.data.Get(app.FormNote))
+		} else if err == nil {
+			if err = checkVault(v, tt.tag, tt.name, tt.data); err != nil {
+				t.Errorf("%d. %s", i, err)
 			}
 		}
 	}

@@ -1,138 +1,23 @@
 {{template "head.tmpl"}}
 <div class="container-fluid">
-    <div class="row" style="height: 100vh;">
+    <div class="row" style="height: 100vh;" id="app">
         <div class="col col-sm-2 col-lg-2 bg-dark pb-3 border-right border-dark d-flex flex-md-column h-100">
-            <tags id="tags"></tags>
+            <tags v-on:tag="all"></tags>
             <hr>
             <a href="/logout" class="btn btn-outline-secondary btn-sm">Logout</a>
         </div>
         <div class="col col-sm-4 col-lg-4 bg-light px-0 border-right border-primary d-flex flex-md-column h-100">
-            <!--<vaults id="vaults"></vaults>-->
+            <vaults v-on:vault="one" v-bind:tag="tag"></vaults>
         </div>
         <div class="col h-100" style="overflow: auto">
-            <div class="d-flex pt-2 pb-4">
-                <h2 class="m-0">Card title</h2>
-                <div class="ml-auto">
-                    <button type="button" class="btn btn-primary btn-sm">Edit</button>
-                    <button type="button" class="btn btn-outline-danger btn-sm">Delete</button>
-                </div>
-            </div>
-            <dl class="row">
-                <dt class="col-sm-3">Username</dt>
-                <dd class="col-sm-9">hgouchet@gmail.com <button type="button" class="btn btn-link btn-sm">Copy</button></dd>
-                <dt class="col-sm-3">Password</dt>
-                <dd class="col-sm-9">•••••••• <span class="badge badge-danger">Danger</span> <button type="button" class="btn btn-link btn-sm">Copy</button></dd>
-            </dl>
-            <div class="progress">
-                <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <hr>
-            <dl class="row">
-                <dt class="col-sm-3">URL</dt>
-                <dd class="col-sm-9"><a href="https://www.rv.com" rel="noreferrer" target="_blank">https://www.rv.com</a></dd>
-                <dt class="col-sm-3">Note</dt>
-                <dd class="col-sm-9"></dd>
-            </dl>
-            <hr>
-            <div><small class="text-muted">Last updated 3 mins ago</small></div>
-
-
-            <form style="padding-top: 300px;">
-                <div class="d-flex pt-2 pb-4">
-                    <div>
-                        <label class="sr-only" for="inlineFormInput">Name</label>
-                        <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="Vault name">
-                    </div>
-                    <div class="ml-auto">
-                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-3 col-form-label">Username</label>
-                    <div class="col-sm-9">
-                        <input type="email" class="form-control" id="inputEmail3" placeholder="Email">
-                    </div>
-                </div>
-                <fieldset class="form-group">
-                    <div class="row">
-                        <label for="inputEmail3" class="col-sm-3 col-form-label">Password</label>
-                        <div class="col-sm-9">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" checked>
-                                <label class="form-check-label" for="gridRadios1">
-                                    Self-generated
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1">
-                                <label class="form-check-label" for="gridRadios1">
-                                    Generating customized
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1">
-                                <label class="form-check-label" for="gridRadios1">
-                                    Handwritten
-                                </label>
-                            </div>
-                            <div id="pass-mode">
-                                <hr>
-                                <div id="pass-self-generated">
-                                    <div class="form-row">
-                                        <div class="form-group col-md-4">
-                                            <label for="inputEmail4">Length</label>
-                                            <input type="number" class="form-control" id="inputEmail4" value="64" min="16" max="64">
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="inputEmail4">Number of digits</label>
-                                            <input type="number" class="form-control" id="inputEmail4" value="10" min="0" max="64">
-                                        </div>
-                                        <div class="form-group col-md-4">
-                                            <label for="inputEmail4">Number of symbols</label>
-                                            <input type="number" class="form-control" id="inputEmail4" value="10" min="0" max="64">
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
-                                            <label class="form-check-label" for="inlineCheckbox1">No uppercase</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2">
-                                            <label class="form-check-label" for="inlineCheckbox2">Allow repeat</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="pass-handwritten" class="form-group">
-                                    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
-                <hr>
-                <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-3 col-form-label">URL</label>
-                    <div class="form-group col-sm-2">
-                        <select id="inputState" class="form-control">
-                            <option value="https://" selected>https://</option>
-                            <option value="http://">http:/</option>
-                        </select>
-                    </div>
-                    <div class="col-sm-7">
-                        <input type="email" class="form-control" id="inputEmail3" placeholder="Email">
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-3 col-form-label">Note</label>
-                    <div class="col-sm-9">
-                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+            <view-vault v-on:vault="one" v-bind:vault="vault" v-bind:tag="tag" v-if="action === 'view'"></view-vault>
+            <edit-vault v-on:vault="one" v-bind:vault="vault" v-bind:tag="tag" v-bind:action="action" v-else></edit-vault>
         </div>
     </div>
 </div>
-{{template "foot.tmpl"}}
+{{template "foot.tmpl" .}}
+<script src="/js/view-vault.js"></script>
+<script src="/js/edit-vault.js"></script>
+<script src="/js/vaults.js"></script>
 <script src="/js/tags.js"></script>
+<script src="/js/app.js"></script>

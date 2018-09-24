@@ -13,12 +13,13 @@ import (
 )
 
 type landingPage struct {
-	app *app.Safe
+	app   *app.Safe
+	debug bool
 }
 
 // Landing ...
-func Landing(app *app.Safe) RenderHandler {
-	return &landingPage{app: app}
+func Landing(app *app.Safe, debug bool) RenderHandler {
+	return &landingPage{app: app, debug: debug}
 }
 
 // Handle implements the Handler interface.
@@ -26,9 +27,12 @@ func (h *landingPage) Handle(c *gin.Context) {
 	switch c.Request.Method {
 	case "GET":
 		if logged := h.app.Logged(); logged == nil {
-			c.Redirect(http.StatusMovedPermanently, Home(h.app).Path())
+			c.Redirect(http.StatusMovedPermanently, Home(h.app, h.debug).Path())
 		} else {
-			c.HTML(http.StatusOK, h.PageName(), gin.H{"SignUp": logged == app.ErrNotFound})
+			c.HTML(http.StatusOK, h.PageName(), gin.H{
+				"SignUp":  logged == app.ErrNotFound,
+				"IsDebug": h.debug,
+			})
 		}
 	case "POST":
 		type pass struct {
@@ -46,7 +50,7 @@ func (h *landingPage) Handle(c *gin.Context) {
 			c.JSON(http.StatusUnauthorized, toErr(err))
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"goto": Home(h.app).Path()})
+		c.JSON(http.StatusOK, gin.H{"goto": Home(h.app, h.debug).Path()})
 	}
 }
 

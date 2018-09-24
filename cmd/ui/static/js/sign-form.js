@@ -11,17 +11,18 @@ Vue.component('sign-form', {
         action: String,
         id: {
             type: String,
-            required: true
+            default: "sign",
         },
         signUp: Boolean,
     },
     methods: {
         login: function (e) {
-            // Reset
+            // Resets
             e.preventDefault();
-            this.error = "";
+            this.reset();
+
             // Parses
-            this.pass = _.trim(this.pass);
+            this.pass = this.pass.trim();
             if (this.pass === '') {
                 this.error = "missing passphrase";
                 return;
@@ -30,15 +31,22 @@ Vue.component('sign-form', {
                 this.error = "unconfirmed passphrase";
                 return;
             }
+
             // Sends
-            var vm = this;
-            axios.post('/', {
-                phrase: vm.pass.toString()
-            }).then(function (response) {
-                document.location = response.data.goto;
-            }).catch(function (error) {
-                vm.error = error.response.data.error;
-            });
+            let self = this
+                , req = new XMLHttpRequest();
+            req.open('POST', self.action, false);
+            req.setRequestHeader("Content-Type", "application/json");
+            req.send(JSON.stringify({phrase: self.pass}));
+            let res = JSON.parse(req.responseText);
+            if (req.status === 200) {
+                document.location = res.goto;
+            } else {
+                self.error = res.error;
+            }
+        },
+        reset: function () {
+            this.error = "";
         }
     },
     template: `<form v-bind:action="action" method="post" v-on:submit="login">
@@ -55,10 +63,6 @@ Vue.component('sign-form', {
     </div>
     <button type="submit" class="btn btn-primary btn-lg">Submit</button>
 </form>`
-});
-
-const login = new Vue({
-    el: '#passphrase',
 });
 
 

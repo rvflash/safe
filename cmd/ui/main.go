@@ -26,6 +26,7 @@ func main() {
 	port := flag.Int("port", 4433, "service port")
 	salt := flag.String("salt", "", "public key")
 	user := flag.String("user", "default", "name of the database")
+	test := flag.Bool("test", false, "test mode")
 	flag.Parse()
 
 	// Current working space.
@@ -52,7 +53,7 @@ func main() {
 	engine := app.New(db, *salt, root, session)
 
 	// Launches the server.
-	route := router.NewRouter(*port, engine)
+	route := router.NewRouter(*port, engine, *test)
 	srv := http.Server{
 		Addr:    route.Addr(),
 		Handler: route.Handler(),

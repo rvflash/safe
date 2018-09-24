@@ -25,6 +25,12 @@ type PathHandler interface {
 	Path() string
 }
 
+// OptionalPathHandler ...
+type OptionalPathHandler interface {
+	PathHandler
+	OptionalPath() string
+}
+
 // RenderHandler ...
 type RenderHandler interface {
 	PathHandler
@@ -33,13 +39,14 @@ type RenderHandler interface {
 
 // Router ...
 type Router struct {
-	app  *app.Safe
-	port int
+	app   *app.Safe
+	port  int
+	debug bool
 }
 
 // NewRouter ...
-func NewRouter(port int, app *app.Safe) *Router {
-	return &Router{app: app, port: port}
+func NewRouter(port int, app *app.Safe, test bool) *Router {
+	return &Router{app: app, port: port, debug: test}
 }
 
 // Addr ...
@@ -47,35 +54,29 @@ func (r *Router) Addr() string {
 	return ":" + strconv.Itoa(r.port)
 }
 
-/*
-// CertFile ...
-func (r *Router) CertFile() string {
-	return r.app.Root().Join("./testdata/server.pem")
-}
-
-// KeyFile ...
-func (r *Router) KeyFile() string {
-	return r.app.Root().Join("./testdata/server.key")
-}
-*/
-
 // Handler ...
 func (r *Router) Handler() http.Handler {
-	// Gin with Logger and Recovery middleware
-	gin.SetMode(gin.ReleaseMode)
-	router := gin.Default()
+	if r.debug {
+		gin.SetMode(gin.TestMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+	router := gin.New()
+	if !r.debug {
+		router.Use(gin.Logger(), gin.Recovery())
+	}
 
 	// HTML Templates
 	tmpl := render.New()
 
 	// Landing page
-	landing := Landing(r.app)
+	landing := Landing(r.app, r.debug)
 	tmpl.Add(landing)
 	router.GET(landing.Path(), landing.Handle)
 	router.POST(landing.Path(), landing.Handle)
 
 	// Homepage
-	home := Home(r.app)
+	home := Home(r.app, r.debug)
 	tmpl.Add(home)
 	router.GET(home.Path(), r.secure(home.Handle))
 
@@ -88,12 +89,17 @@ func (r *Router) Handler() http.Handler {
 	vaults := Vaults(r.app)
 	router.DELETE(vaults.Path(), r.secure(vaults.Handle))
 	router.GET(vaults.Path(), r.secure(vaults.Handle))
+	router.GET(vaults.OptionalPath(), r.secure(vaults.Handle))
 	router.POST(vaults.Path(), r.secure(vaults.Handle))
 	router.PUT(vaults.Path(), r.secure(vaults.Handle))
 
+	// API: password (generate a new one)
+	pwd := Password()
+	router.POST(pwd.Path(), pwd.Handle)
+
 	// API: logout
 	logout := Logout(r.app)
-	router.GET(logout.Path(), r.secure(logout.Handle))
+	router.GET(logout.Path(), logout.Handle)
 
 	// Static media.
 	router.Static("/css/", r.app.Root().Join("./static/css/"))
