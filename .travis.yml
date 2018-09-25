@@ -12,8 +12,8 @@ before_install:
 install: true
 
 script:
+  - go test -v -mod=vendor ./... -race -coverprofile=coverage.txt -covermode=atomic $(go list ./... | grep -v /vendor/)
   - golangci-lint run
-  - go test -v -race -coverprofile=coverage.txt -covermode=atomic $(go list ./... | grep -v /vendor/)
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
