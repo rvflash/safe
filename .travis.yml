@@ -6,14 +6,14 @@ go:
 env:
   - GO111MODULE=on
 
-before_install:
-  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s v1.10.2
+# before_install:
+#   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin v1.10.2
 
 install: true
 
 script:
   - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
-  - golangci-lint run
+#   - golangci-lint run
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
