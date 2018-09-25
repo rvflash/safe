@@ -12,7 +12,7 @@ before_install:
 install: true
 
 script:
-  - go test -v -mod=vendor ./... -race -coverprofile=coverage.txt -covermode=atomic $(go list ./... | grep -v /vendor/)
+  - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
   - golangci-lint run
 
 after_success:
