@@ -33,7 +33,7 @@ func (p *Passphrase) Compare(hashed []byte) error {
 	if err != nil {
 		return err
 	}
-	if bytes.Compare(b64Encode(hash), hashed) != 0 {
+	if !bytes.Equal(b64Encode(hash), hashed) {
 		return ErrInvalid
 	}
 	return nil

@@ -165,7 +165,7 @@ func (v *Vault) SignLogin(hash crypto.Hash, l *Login) error {
 	return nil
 }
 
-// MarshalJSON implements tje json.Marshaler interface.
+// MarshalJSON implements the json.Marshaler interface.
 func (v *Vault) MarshalJSON() ([]byte, error) {
 	// Changes the last modification date.
 	v.v.LastUpdate = &timeUnix{time: time.Now()}

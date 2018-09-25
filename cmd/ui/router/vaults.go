@@ -141,17 +141,17 @@ func (h *vaults) update(c *gin.Context) {
 // Handle implements the Handler interface.
 func (h *vaults) Handle(c *gin.Context) {
 	switch c.Request.Method {
-	case "DELETE":
+	case http.MethodDelete:
 		h.delete(c)
-	case "GET":
+	case http.MethodGet:
 		if c.Param("key") == "" {
 			h.readAll(c)
 		} else {
 			h.readOne(c)
 		}
-	case "POST":
+	case http.MethodPost:
 		h.create(c)
-	case "PUT":
+	case http.MethodPut:
 		h.update(c)
 	default:
 		c.JSON(http.StatusMethodNotAllowed, toErr(errors.New(http.StatusText(http.StatusMethodNotAllowed))))

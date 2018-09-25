@@ -44,7 +44,7 @@ func TestNew(t *testing.T) {
 		if err != tt.err {
 			t.Fatalf("%d. unexpected error: got=%q exp=%q", i, err, tt.err)
 		}
-		if bytes.Compare(out, tt.in) != 0 {
+		if !bytes.Equal(out, tt.in) {
 			t.Errorf("%d. unexpected result: got=%s exp=%s", i, out, tt.out)
 		}
 	}

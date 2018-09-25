@@ -73,7 +73,8 @@ func main() {
 	// > Waiting for SIGINT
 	<-exit
 	// > Closes the server.
-	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 	if err = srv.Shutdown(ctx); err != nil {
 		log.Printf("server (shutdown): %s\n", err)
 		failed = 1

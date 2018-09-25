@@ -25,7 +25,7 @@ func Landing(app *app.Safe, debug bool) RenderHandler {
 // Handle implements the Handler interface.
 func (h *landingPage) Handle(c *gin.Context) {
 	switch c.Request.Method {
-	case "GET":
+	case http.MethodGet:
 		if logged := h.app.Logged(); logged == nil {
 			c.Redirect(http.StatusMovedPermanently, Home(h.app, h.debug).Path())
 		} else {
@@ -34,7 +34,7 @@ func (h *landingPage) Handle(c *gin.Context) {
 				"IsDebug": h.debug,
 			})
 		}
-	case "POST":
+	case http.MethodPost:
 		type pass struct {
 			Phrase string `form:"phrase"`
 		}

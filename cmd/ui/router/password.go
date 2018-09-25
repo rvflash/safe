@@ -23,7 +23,7 @@ func Password() PathHandler {
 // Handle implements the Handler interface.
 func (h *password) Handle(c *gin.Context) {
 	switch c.Request.Method {
-	case "POST":
+	case http.MethodPost:
 		h.create(c)
 	default:
 		c.JSON(http.StatusMethodNotAllowed, toErr(errors.New(http.StatusText(http.StatusMethodNotAllowed))))

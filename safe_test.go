@@ -33,7 +33,7 @@ func TestNewTag(t *testing.T) {
 	)
 	for i, tt := range dt {
 		tg = safe.NewTag(tt.name)
-		if key = tg.Key(); bytes.Compare(key, tt.key) != 0 {
+		if key = tg.Key(); !bytes.Equal(key, tt.key) {
 			t.Fatalf("%d. mismatch key: got=%q exp=%q", i, key, tt.key)
 		}
 		if ok = tg.Valid(); ok != tt.ok {
@@ -125,7 +125,7 @@ func TestVault_Valid(t *testing.T) {
 			}
 		}
 		if v.Tag() != nil {
-			if k := bytes.Join([][]byte{v.Tag().Key(), []byte(v.Name())}, []byte("")); bytes.Compare(v.Key(), k) != 0 {
+			if k := bytes.Join([][]byte{v.Tag().Key(), []byte(v.Name())}, []byte("")); !bytes.Equal(v.Key(), k) {
 				t.Errorf("%d. unexpected key: got=%q exp=%q", i, v.Key(), k)
 			}
 		}

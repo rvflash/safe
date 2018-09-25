@@ -24,9 +24,9 @@ func Tags(app *app.Safe) PathHandler {
 // Handle implements the Handler interface.
 func (h *tags) Handle(c *gin.Context) {
 	switch c.Request.Method {
-	case "GET":
+	case http.MethodGet:
 		h.read(c)
-	case "POST":
+	case http.MethodPost:
 		h.create(c)
 	default:
 		c.JSON(http.StatusMethodNotAllowed, toErr(errors.New(http.StatusText(http.StatusMethodNotAllowed))))

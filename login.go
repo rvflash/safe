@@ -21,7 +21,7 @@ type hashLogin struct {
 	*Login
 }
 
-// MarshalJSON implements tje json.Marshaler interface.
+// MarshalJSON implements the json.Marshaler interface.
 func (h *hashLogin) MarshalJSON() ([]byte, error) {
 	// Changes the last modification date.
 	h.Login.LastUpdate = time.Now()
@@ -37,7 +37,7 @@ func (h *hashLogin) MarshalJSON() ([]byte, error) {
 	return json.Marshal(cipher)
 }
 
-// UnmarshalJSON implements tje json.Unmarshaler interface.
+// UnmarshalJSON implements the json.Unmarshaler interface.
 func (h *hashLogin) UnmarshalJSON(s []byte) error {
 	// Given a JSON string
 	b, err := b64Decode(bytes.Trim(s, `"`))

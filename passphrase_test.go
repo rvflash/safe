@@ -41,7 +41,7 @@ func TestPassphrase_Compare(t *testing.T) {
 			if err != nil {
 				t.Fatalf("%d. unexpected error: %q", i, err)
 			}
-			if b = bytes.Trim(b, `"`); bytes.Compare(b, tt.hashed) != 0 {
+			if b = bytes.Trim(b, `"`); !bytes.Equal(b, tt.hashed) {
 				t.Fatalf("%d. mismatch hash: got=%q exp=%q", i, b, tt.hashed)
 			}
 		}
@@ -50,7 +50,7 @@ func TestPassphrase_Compare(t *testing.T) {
 
 func TestPassphrase_Key(t *testing.T) {
 	k := []byte("pass")
-	if b := passPhrase().Key(); bytes.Compare(b, k) != 0 {
+	if b := passPhrase().Key(); !bytes.Equal(b, k) {
 		t.Fatalf("mismatch content: got=%q exp=%q", b, k)
 	}
 }
