@@ -89,7 +89,8 @@ Vue.component('view-vault', {
             req.open('DELETE', `/tags/${tag}/vaults/${vault}`, false);
             req.send(null);
             if (req.status === 200) {
-                this.$emit('vault', this.tag, '', 'create');
+                this.vault = '';
+                this.$emit('vault', this.tag, this.vault, 'create');
             } else {
                 let res = JSON.parse(req.responseText);
                 this.error = res.error;
@@ -169,7 +170,7 @@ Vue.component('view-vault', {
         <div class="progress">
             <div v-bind:class="['progress-bar bg-success', progress ]" role="progressbar" v-bind:aria-valuenow="strength" aria-valuemin="0" aria-valuemax="4"></div>
         </div>
-        <hr v-if="url && note">
+        <hr v-if="url || note">
         <dl class="row">
             <dt class="col-sm-3" v-show="url">URL</dt>
             <dd class="col-sm-9" v-show="url"><a v-bind:href="encodeURI(url)" rel="noreferrer" target="_blank">\${ url }</a></dd>

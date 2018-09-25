@@ -7,7 +7,7 @@
             <a href="/logout" class="btn btn-outline-secondary btn-sm">Logout</a>
         </div>
         <div class="col col-sm-4 col-lg-4 bg-light px-0 border-right border-primary d-flex flex-md-column h-100">
-            <vaults v-on:vault="one" v-bind:tag="tag"></vaults>
+            <vaults v-on:vault="one" v-bind:tag="tag" v-bind:cur="vault"></vaults>
         </div>
         <div class="col h-100" style="overflow: auto">
             <view-vault v-on:vault="one" v-bind:vault="vault" v-bind:tag="tag" v-if="action === 'view'"></view-vault>

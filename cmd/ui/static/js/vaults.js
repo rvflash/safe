@@ -24,12 +24,18 @@ Vue.component('vaults', {
             type: String,
             required: true,
         },
+        cur: {
+            type: String,
+        },
     },
     watch: {
         query: function () {
             this.search();
         },
         tag: function () {
+            this.list();
+        },
+        cur: function () {
             this.list();
         }
     },
@@ -57,14 +63,13 @@ Vue.component('vaults', {
                 , tag = encodeURIComponent(self.tag)
                 , prefix = encodeURIComponent(self.query)
             ;
-            // Resets
-            self.items = [];
             // Retrieves the list of vaults for this tag.
             req.open('GET', `/tags/${tag}/vaults/?prefix=${prefix}`, true);
             req.onload = function() {
                 if (this.status === 200) {
+                    self.items = [];
                     JSON.parse(req.responseText).forEach(function(item, key) {
-                        item.active = key === 0;
+                        item.active = item.name === self.cur;
                         if (item.active) {
                             self.$emit('vault', self.tag, item.name, 'view');
                         }

@@ -37,6 +37,8 @@ var (
 	ErrOutdated = errors.New("outdated data")
 	// ErrNotFound is the data doesn't exist.
 	ErrNotFound = errors.New("not found")
+	// ErrStrength is returned if the password is not safe.
+	ErrStrength = errors.New("low password strength")
 )
 
 // Keyer returns the key of the data.
@@ -82,7 +84,7 @@ type timeUnix struct {
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
-func (t timeUnix) UnmarshalJSON(b []byte) error {
+func (t *timeUnix) UnmarshalJSON(b []byte) error {
 	sec, err := strconv.ParseInt(string(b), 10, 64)
 	if err != nil {
 		return err
@@ -93,13 +95,13 @@ func (t timeUnix) UnmarshalJSON(b []byte) error {
 }
 
 // MarshalJSON implements the json.Marshaler interface.
-func (t timeUnix) MarshalJSON() ([]byte, error) {
+func (t *timeUnix) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.time.Unix())
 }
 
 type jsonVault struct {
-	AddDate    timeUnix   `json:"add_ts"`
-	LastUpdate timeUnix   `json:"upd_ts"`
+	AddDate    *timeUnix  `json:"add_ts"`
+	LastUpdate *timeUnix  `json:"upd_ts"`
 	Login      *hashLogin `json:"login"`
 	Name       string     `json:"name"`
 	Tag        *Tag       `json:"tag"`
@@ -118,10 +120,11 @@ func EmptyVault(hash crypto.Hash) *Vault {
 // NewVault returns a new instance of Vault for the given data.
 func NewVault(hash crypto.Hash, name string, tag *Tag, login *Login) *Vault {
 	return &Vault{v: jsonVault{
-		Name:    strings.TrimSpace(name),
-		Tag:     tag,
-		Login:   &hashLogin{hash: hash, Login: login},
-		AddDate: timeUnix{time: time.Now()},
+		Name:       strings.TrimSpace(name),
+		Tag:        tag,
+		Login:      &hashLogin{hash: hash, Login: login},
+		AddDate:    &timeUnix{time: time.Now()},
+		LastUpdate: &timeUnix{time: time.Now()},
 	}}
 }
 
@@ -165,7 +168,7 @@ func (v *Vault) SignLogin(hash crypto.Hash, l *Login) error {
 // MarshalJSON implements tje json.Marshaler interface.
 func (v *Vault) MarshalJSON() ([]byte, error) {
 	// Changes the last modification date.
-	v.v.LastUpdate = timeUnix{time: time.Now()}
+	v.v.LastUpdate = &timeUnix{time: time.Now()}
 	return json.Marshal(v.v)
 }
 

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nbutton23/zxcvbn-go"
 	"github.com/rvflash/safe/crypto"
 )
 
@@ -96,5 +97,19 @@ func (l *Login) Safe() (ok bool, err error) {
 		err = ErrOutdated
 		return
 	}
+	if ok = l.Strength() > 2; !ok {
+		err = ErrStrength
+		return
+	}
 	return
+}
+
+// Strength returns the password strength.
+// <= 1: do not use
+// <= 2: not safe
+// <= 3: not so bad
+// <= 4: good
+func (l *Login) Strength() int {
+	strength := zxcvbn.PasswordStrength(l.Password, nil)
+	return strength.Score
 }

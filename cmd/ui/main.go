@@ -23,7 +23,7 @@ import (
 
 func main() {
 	// Gets configuration
-	port := flag.Int("port", 4433, "service port")
+	port := flag.Int("port", 7233, "service port")
 	salt := flag.String("salt", "", "public key")
 	user := flag.String("user", "default", "name of the database")
 	test := flag.Bool("test", false, "test mode")

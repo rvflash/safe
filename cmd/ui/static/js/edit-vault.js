@@ -87,9 +87,6 @@ Vue.component('edit-vault', {
                 note: self.note,
             }));
             if (req.status === 200) {
-                if (self.action === 'create') {
-                    self.$emit('tag', self.tag);
-                }
                 self.$emit('vault', self.tag, self.vault, 'view');
             } else {
                 let res = JSON.parse(req.responseText);
@@ -134,7 +131,7 @@ Vue.component('edit-vault', {
         <div>
             <label class="sr-only" v-bind:for="id + 'Name'">Name</label>
             <input type="text" class="form-control form-control-sm mb-2" v-bind:id="id + 'Name'" name="vault" v-model="vault" placeholder="Vault name" v-if="action === 'create'" minlength="1" required>
-            <div v-else>\${ vault }</div>
+            <h2 class="m-0" v-else>\${ vault }</h2>
         </div>
         <div class="ml-auto">
             <button type="submit" class="btn btn-primary btn-sm">Save</button>

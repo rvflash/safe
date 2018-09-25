@@ -7,8 +7,10 @@ require (
 	github.com/gin-gonic/gin v1.3.0
 	github.com/golang/protobuf v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
+	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
+	github.com/rvflash/elapsed v0.1.2
 	github.com/sethvargo/go-password v0.1.1
-	github.com/ugorji/go/codec v0.0.0-20180831062425-e253f1f20942 // indirect
+	github.com/ugorji/go/codec v0.0.0-20180920200043-2c86ab75771c // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
 )

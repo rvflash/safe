@@ -10,10 +10,14 @@ github.com/golang/protobuf v1.2.0 h1:P3YflyNX/ehuJFLhxviNdFxQPkGK5cDcApsge1SqnvM
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/mattn/go-isatty v0.0.4 h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=
 github.com/mattn/go-isatty v0.0.4/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
+github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d h1:AREM5mwr4u1ORQBMvzfzBgpsctsbQikCVpvC+tX285E=
+github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d/go.mod h1:o96djdrsSGy3AWPyBgZMAGfxZNfgntdJG+11KU4QvbU=
+github.com/rvflash/elapsed v0.1.2 h1:8CDUWU7e7w1dZsg+sleviIiEoLvaxPxyPHH0Fa1uZlA=
+github.com/rvflash/elapsed v0.1.2/go.mod h1:sgjohdXO66LHVgIEQpO92eQjDWyZ5twX1ow122ixFGY=
 github.com/sethvargo/go-password v0.1.1 h1:SQWvUeQJ4ivt1nEjuRZbEP7QmNCrDmoUweri5CSJXEY=
 github.com/sethvargo/go-password v0.1.1/go.mod h1:qKHfdSjT26DpHQWHWWR5+X4BI45jT31dg6j4RI2TEb0=
-github.com/ugorji/go/codec v0.0.0-20180831062425-e253f1f20942 h1:CZORS/4d6i+5FKSAtbRIjlElV2BAFYv/bokcaEVUimQ=
-github.com/ugorji/go/codec v0.0.0-20180831062425-e253f1f20942/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
+github.com/ugorji/go/codec v0.0.0-20180920200043-2c86ab75771c h1:VKaVTivuPeZPjcuRzM9sF11ZZHIZweq4cbnQHxfeoy8=
+github.com/ugorji/go/codec v0.0.0-20180920200043-2c86ab75771c/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/go-playground/validator.v8 v8.18.2 h1:lFB4DoMU6B626w8ny76MV7VX6W2VHct2GVOI3xgiMrQ=
 gopkg.in/go-playground/validator.v8 v8.18.2/go.mod h1:RX2a/7Ha8BgOhfk7j780h4/u/RRjR0eouCJSH80/M2Y=
