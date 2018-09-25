@@ -55,7 +55,8 @@ func TestLogin_Safe(t *testing.T) {
 			},
 			err: safe.ErrOutdated,
 		},
-		{login: &safe.Login{Name: name, Password: "best-secret-ever", LastUpdate: time.Now()}, ok: true},
+		{login: &safe.Login{Name: name, Password: "best-secret-ever", LastUpdate: time.Now()}, err: safe.ErrStrength},
+		{login: &safe.Login{Name: name, Password: "the-best-secret-ever", LastUpdate: time.Now()}, ok: true},
 	}
 	var (
 		ok  bool

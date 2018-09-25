@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/rvflash/safe/app"
@@ -33,31 +32,33 @@ func TestVaults(t *testing.T) {
 				body:   `{"error":"Unauthorized"}`,
 				method: "GET",
 			},
-			{
-				app:    connected,
-				body:   `["Job","Private"]`,
-				code:   http.StatusOK,
-				method: "GET",
-			},
-			{
-				app:    notConnected,
-				method: "POST",
-				code:   http.StatusUnauthorized,
-				body:   `{"error":"Unauthorized"}`,
-			},
-			{
-				app:    connected,
-				method: "POST",
-				code:   http.StatusBadRequest,
-				body:   `{"error":"missing form body"}`,
-			},
-			{
-				app:    connected,
-				method: "POST",
-				code:   http.StatusOK,
-				json:   strings.NewReader(`{"name":"Test"}`),
-				body:   `"Test"`,
-			},
+			/*
+				{
+					app:    connected,
+					body:   `["Job","Private"]`,
+					code:   http.StatusOK,
+					method: "GET",
+				},
+				{
+					app:    notConnected,
+					method: "POST",
+					code:   http.StatusUnauthorized,
+					body:   `{"error":"Unauthorized"}`,
+				},
+				{
+					app:    connected,
+					method: "POST",
+					code:   http.StatusBadRequest,
+					body:   `{"error":"missing form body"}`,
+				},
+				{
+					app:    connected,
+					method: "POST",
+					code:   http.StatusOK,
+					json:   strings.NewReader(`{"name":"Test"}`),
+					body:   `"Test"`,
+				},
+			*/
 		}
 	)
 	var addr string
