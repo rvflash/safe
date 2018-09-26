@@ -30,6 +30,7 @@ Vue.component('tags', {
                 , req = new XMLHttpRequest();
             req.open('GET', '/tag', true);
             req.onload = function() {
+                self.items = [];
                 if (this.status === 200) {
                     let res = JSON.parse(req.responseText);
                     res.forEach(function(tag) {
