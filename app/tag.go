@@ -6,7 +6,7 @@ package app
 
 import "github.com/rvflash/safe"
 
-// ListTag ...
+// ListTagByNames ...
 func (s *Safe) ListTagByNames() ([]*safe.Tag, error) {
 	if err := s.logged(); err != nil {
 		return nil, err
@@ -14,7 +14,7 @@ func (s *Safe) ListTagByNames() ([]*safe.Tag, error) {
 	return s.db.Tags()
 }
 
-// AddTag ...
+// CreateTag ...
 func (s *Safe) CreateTag(name string) (*safe.Tag, error) {
 	if err := s.logged(); err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (s *Safe) CreateTag(name string) (*safe.Tag, error) {
 	return tag, s.db.CreateTag(tag)
 }
 
-// ...
+// DeleteTag ...
 func (s *Safe) DeleteTag(name string) error {
 	if err := s.logged(); err != nil {
 		return err

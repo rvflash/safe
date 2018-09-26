@@ -15,7 +15,7 @@ type logoutPage struct {
 	app *app.Safe
 }
 
-// NotFound ...
+// Logout ...
 func Logout(app *app.Safe) PathHandler {
 	return &logoutPage{app: app}
 }
