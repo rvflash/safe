@@ -27,17 +27,24 @@ func NewDialog(parent *Window, id, xml string) (*Dialog, error) {
 	// Checks if the interface is valid.
 	d := &Dialog{Object: o, p: parent}
 	// Attaches this dialog on the main window.
-	d.Dialog().SetTransientFor(d.Parent())
+	d.Dialog().SetTransientFor(d.parent())
 
 	return d, nil
 }
 
-// App ...
+func (d *Dialog) parent() gtk.IWindow {
+	if d.p == nil {
+		return nil
+	}
+	return d.p.Box().(gtk.IWindow)
+}
+
+// App implements the Plugin interface.
 func (d *Dialog) App() *app.Safe {
 	return d.p.App()
 }
 
-// Log ...
+// Log implements the Plugin interface.
 func (d *Dialog) Log(format string, args ...interface{}) {
 	d.p.Log(format, args)
 }
@@ -58,11 +65,11 @@ func (d *Dialog) Hide() {
 }
 
 // Parent ...
-func (d *Dialog) Parent() gtk.IWindow {
+func (d *Dialog) Parent() *Window {
 	if d.p == nil {
 		return nil
 	}
-	return d.p.Box().(gtk.IWindow)
+	return d.p
 }
 
 // Show implements the Visibility interface.

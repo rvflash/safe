@@ -42,6 +42,7 @@ func (d *SignDialog) Init() (err error) {
 				d.Error(signError, err.Error())
 			} else {
 				d.Hide()
+				d.Parent().ShowAll()
 			}
 		}()
 		p, err := d.ReadEntry(signPassphrase)

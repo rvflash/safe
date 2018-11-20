@@ -233,7 +233,7 @@ func (d *VaultDialog) Reset() (err error) {
 		return
 	}
 	// Password
-	err = d.WriteEntry(vaultPwd, "••••••••••")
+	err = d.WriteEntry(vaultPwd, "**********")
 	if err != nil {
 		return
 	}

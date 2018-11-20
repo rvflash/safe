@@ -48,7 +48,14 @@ func Init(db *app.Safe, log Logger, debug bool) (*App, error) {
 	}
 	gtk.Init(&os.Args)
 
-	var err error
+	// Default theme
+	s, err := gtk.SettingsGetDefault()
+	if err != nil {
+		return nil, err
+	}
+	s.Set("gtk-application-prefer-dark-theme", true)
+
+	// Containers (window and dialogs)
 	if err = a.window(mainUIID, mainUIPath, db, log); err != nil {
 		return nil, err
 	}

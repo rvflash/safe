@@ -7,6 +7,8 @@ package gtk
 import (
 	"errors"
 
+	"github.com/rvflash/safe"
+
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/rvflash/safe/app"
@@ -70,6 +72,16 @@ func (w *Window) AddDialog(d VisibleContainer) error {
 	return nil
 }
 
+// AddTag ...
+func (w *Window) AddTag(t *safe.Tag) error {
+	return nil
+}
+
+// AddTag ...
+func (w *Window) AddVault(v *safe.Vault) error {
+	return nil
+}
+
 // Hide implements the Visibility interface.
 func (w *Window) Hide() {
 	if c := w.Window(); c != nil {
@@ -88,7 +100,7 @@ func (w *Window) Init() (err error) {
 	if err = w.connectNewTag(); err != nil {
 		return
 	}
-	return
+	return w.login()
 }
 
 func (w *Window) connectDestroy() (err error) {
@@ -118,10 +130,28 @@ func (w *Window) connectNewTag() error {
 	})
 }
 
+func (w *Window) login() (err error) {
+	o, err := w.ID("app_box")
+	if err != nil {
+		return
+	}
+	o.(*gtk.Box).Hide()
+	w.sign.Init()
+	w.sign.Show()
+	return
+}
+
 // Show implements the Visibility interface.
 func (w *Window) Show() {
 	if c := w.Window(); c != nil {
 		c.Show()
+	}
+}
+
+// Show implements the Visibility interface.
+func (w *Window) ShowAll() {
+	if c := w.Window(); c != nil {
+		c.ShowAll()
 	}
 }
 

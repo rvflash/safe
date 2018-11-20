@@ -52,5 +52,5 @@ func (d *TagDialog) Reset() (err error) {
 		return
 	}
 	// Error message
-	return d.Error(signError, "")
+	return d.Error(tagError, "")
 }

@@ -33,16 +33,16 @@
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
-        <property name="margin_left">6</property>
-        <property name="margin_right">6</property>
-        <property name="margin_top">6</property>
-        <property name="margin_bottom">6</property>
+        <property name="margin_left">10</property>
+        <property name="margin_right">10</property>
+        <property name="margin_top">10</property>
+        <property name="margin_bottom">10</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox">
             <property name="can_focus">False</property>
-            <property name="margin_top">6</property>
+            <property name="margin_top">10</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="vault_cancel">
@@ -88,8 +88,8 @@
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="row_spacing">6</property>
-                <property name="column_spacing">6</property>
+                <property name="row_spacing">10</property>
+                <property name="column_spacing">10</property>
                 <child>
                   <object class="GtkAccelLabel">
                     <property name="visible">True</property>
@@ -97,7 +97,7 @@
                     <property name="halign">start</property>
                     <property name="label" translatable="yes">Vault name</property>
                     <attributes>
-                      <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                      <attribute name="font-desc" value="Helvetica 13"/>
                     </attributes>
                   </object>
                   <packing>
@@ -124,7 +124,7 @@
                     <property name="halign">start</property>
                     <property name="label" translatable="yes">Username</property>
                     <attributes>
-                      <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                      <attribute name="font-desc" value="Helvetica 13"/>
                     </attributes>
                   </object>
                   <packing>
@@ -149,10 +149,10 @@
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
                     <property name="valign">start</property>
-                    <property name="margin_top">6</property>
+                    <property name="margin_top">10</property>
                     <property name="label" translatable="yes">Password</property>
                     <attributes>
-                      <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                      <attribute name="font-desc" value="Helvetica 13"/>
                     </attributes>
                   </object>
                   <packing>
@@ -167,7 +167,7 @@
                     <property name="halign">start</property>
                     <property name="label" translatable="yes">URL</property>
                     <attributes>
-                      <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                      <attribute name="font-desc" value="Helvetica 13"/>
                     </attributes>
                   </object>
                   <packing>
@@ -194,7 +194,7 @@
                     <property name="halign">start</property>
                     <property name="label" translatable="yes">Note</property>
                     <attributes>
-                      <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                      <attribute name="font-desc" value="Helvetica 13"/>
                     </attributes>
                   </object>
                   <packing>
@@ -259,7 +259,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="halign">start</property>
-                        <property name="margin_bottom">6</property>
+                        <property name="margin_bottom">10</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">vault_self_generated</property>
                         <signal name="clicked" handler="vault_password_settings" swapped="no"/>
@@ -293,13 +293,13 @@
                   <object class="GtkBox" id="vault_password_customized_choices">
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
-                    <property name="spacing">6</property>
+                    <property name="spacing">10</property>
                     <child>
                       <object class="GtkGrid">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="row_spacing">6</property>
-                        <property name="column_spacing">6</property>
+                        <property name="row_spacing">10</property>
+                        <property name="column_spacing">10</property>
                         <property name="column_homogeneous">True</property>
                         <child>
                           <object class="GtkLabel">
@@ -308,7 +308,7 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Length</property>
                             <attributes>
-                              <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                              <attribute name="font-desc" value="Helvetica 13"/>
                             </attributes>
                           </object>
                           <packing>
@@ -323,7 +323,7 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Number of digits</property>
                             <attributes>
-                              <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                              <attribute name="font-desc" value="Helvetica 13"/>
                             </attributes>
                           </object>
                           <packing>
@@ -338,7 +338,7 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Number of symbols</property>
                             <attributes>
-                              <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                              <attribute name="font-desc" value="Helvetica 13"/>
                             </attributes>
                           </object>
                           <packing>
@@ -409,7 +409,7 @@
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">6</property>
+                        <property name="spacing">10</property>
                         <child>
                           <object class="GtkCheckButton" id="vault_password_uppercase">
                             <property name="label" translatable="yes">No uppercase</property>
@@ -471,9 +471,9 @@
                 <property name="can_focus">False</property>
                 <property name="halign">start</property>
                 <property name="margin_top">20</property>
-                <property name="margin_bottom">6</property>
+                <property name="margin_bottom">10</property>
                 <attributes>
-                  <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                  <attribute name="font-desc" value="Helvetica 13"/>
                   <attribute name="foreground" value="#cccc00000000"/>
                 </attributes>
               </object>

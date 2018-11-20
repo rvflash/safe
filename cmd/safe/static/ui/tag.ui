@@ -15,10 +15,10 @@
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
-        <property name="margin_left">6</property>
-        <property name="margin_right">6</property>
-        <property name="margin_top">6</property>
-        <property name="margin_bottom">6</property>
+        <property name="margin_left">10</property>
+        <property name="margin_right">10</property>
+        <property name="margin_top">10</property>
+        <property name="margin_bottom">10</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
@@ -75,7 +75,7 @@
                 <property name="margin_bottom">6</property>
                 <property name="label" translatable="yes">New tag name:</property>
                 <attributes>
-                  <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                  <attribute name="font-desc" value="Helvetica 13"/>
                 </attributes>
               </object>
               <packing>
@@ -98,13 +98,12 @@
             </child>
             <child>
               <object class="GtkLabel" id="tag_error">
-                <property name="visible">False</property>
                 <property name="can_focus">False</property>
                 <property name="halign">start</property>
                 <property name="margin_top">12</property>
                 <property name="margin_bottom">6</property>
                 <attributes>
-                  <attribute name="font-desc" value="Helvetica weight=237 12"/>
+                  <attribute name="font-desc" value="Helvetica 13"/>
                   <attribute name="foreground" value="#cccc00000000"/>
                 </attributes>
               </object>
