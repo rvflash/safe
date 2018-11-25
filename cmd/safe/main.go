@@ -11,25 +11,22 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/rvflash/safe/app"
-
 	"github.com/rvflash/safe/bolt"
 	"github.com/rvflash/safe/cmd/safe/gtk"
 )
 
 func main() {
-	// Debugging
-	logger := log.New(os.Stdout, "safe: ", log.Lshortfile|log.LstdFlags)
 	// Parses flags
 	root := flag.String("dir", "", "directory path of the database")
 	salt := flag.String("salt", "Sh0u!ldN0t8eUs3d", "public key")
 	user := flag.String("user", "default", "name of the database")
-	debug := flag.Bool("debug", false, "debug mode")
+	test := flag.Bool("debug", false, "debug mode")
 	flag.Parse()
 
 	// Application engine.
+	logger := log.New(os.Stdout, "safe: ", log.Lshortfile|log.LstdFlags)
 	if *root == "" {
 		exec, err := os.Executable()
 		if err != nil {
@@ -43,24 +40,18 @@ func main() {
 	if *user == "" {
 		logger.Fatal("flag: missing username")
 	}
-	// > Bolt database
+
+	// Bolt database.
 	db, err := bolt.Open(*root, *user)
 	if err != nil {
 		log.Fatalf("db: %s", err)
 	}
-	// > Session
-	session := app.NewSession(time.Hour*24, time.Hour)
-	engine := app.New(db, *salt, *root, session)
+	engine := app.New(db, *salt, *root, nil)
 
-	// Launches the application
-	app, err := gtk.Init(engine, logger, *debug)
+	// Launches the application.
+	safe, err := gtk.Init(&os.Args, engine, logger, *test)
 	if err != nil {
 		log.Fatal(err)
 	}
-	app.Run()
-
-	// > Closes the database.
-	if err = engine.Close(); err != nil {
-		log.Fatalf("app: %s\n", err)
-	}
+	safe.Run()
 }

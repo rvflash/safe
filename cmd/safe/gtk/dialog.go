@@ -13,6 +13,7 @@ import (
 type Dialog struct {
 	*Object
 	p *Window
+	d *gtk.Dialog
 }
 
 // NewDialog ...
@@ -24,19 +25,13 @@ func NewDialog(parent *Window, id, xml string) (*Dialog, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Checks if the interface is valid.
-	d := &Dialog{Object: o, p: parent}
-	// Attaches this dialog on the main window.
-	d.Dialog().SetTransientFor(d.parent())
+	w := o.IObject().(*gtk.Dialog)
+	w.SetTransientFor(parent.Window())
+	//w.SetPosition(gtk.WIN_POS_CENTER_ON_PARENT)
+	//w.SetModal(true)
+	//w.SetFocusVisible(true)
 
-	return d, nil
-}
-
-func (d *Dialog) parent() gtk.IWindow {
-	if d.p == nil {
-		return nil
-	}
-	return d.p.Box().(gtk.IWindow)
+	return &Dialog{Object: o, p: parent, d: w}, nil
 }
 
 // App implements the Plugin interface.
@@ -46,35 +41,29 @@ func (d *Dialog) App() *app.Safe {
 
 // Log implements the Plugin interface.
 func (d *Dialog) Log(format string, args ...interface{}) {
-	d.p.Log(format, args)
-}
-
-// Dialog ...
-func (d *Dialog) Dialog() *gtk.Dialog {
-	if d.Box() == nil {
-		return nil
-	}
-	return d.Box().(*gtk.Dialog)
+	d.p.Log(format, args...)
 }
 
 // Hide implements the Visibility interface.
 func (d *Dialog) Hide() {
-	if c := d.Dialog(); c != nil {
-		c.Hide()
+	if d.d != nil {
+		d.d.Hide()
+	}
+}
+
+// Show implements the Visibility interface.
+func (d *Dialog) Show() {
+	if d.d != nil {
+		d.d.Show()
 	}
 }
 
 // Parent ...
 func (d *Dialog) Parent() *Window {
-	if d.p == nil {
-		return nil
-	}
 	return d.p
 }
 
-// Show implements the Visibility interface.
-func (d *Dialog) Show() {
-	if c := d.Dialog(); c != nil {
-		c.Show()
-	}
+// IWidget ...
+func (d *Dialog) IWidget() gtk.IWidget {
+	return d.d
 }

@@ -8,7 +8,7 @@ import (
 	"errors"
 
 	"github.com/gotk3/gotk3/gtk"
-	"github.com/rvflash/safe"
+	"github.com/rvflash/safe/app"
 )
 
 const (
@@ -29,6 +29,7 @@ type SignDialog struct {
 func (d *SignDialog) Init() (err error) {
 	// Cancellation.
 	err = d.ButtonClicked(signCancel, func() {
+		d.Log("cancelled")
 		gtk.MainQuit()
 	})
 	if err != nil {
@@ -39,17 +40,18 @@ func (d *SignDialog) Init() (err error) {
 		var err error
 		defer func() {
 			if err != nil {
+				d.Log("err=%q", err.Error())
 				d.Error(signError, err.Error())
 			} else {
+				d.Log("logged")
 				d.Hide()
-				d.Parent().ShowAll()
 			}
 		}()
 		p, err := d.ReadEntry(signPassphrase)
 		if err != nil {
 			return
 		}
-		if d.App().Logged() == safe.ErrNotFound {
+		if d.App().Logged() == app.ErrNotFound {
 			// Sign up behavior.
 			pc, err := d.ReadEntry(signConfirmPassphrase)
 			if err != nil {
@@ -60,18 +62,39 @@ func (d *SignDialog) Init() (err error) {
 				return
 			}
 		}
-		err = d.App().Login(p)
+		if err = d.App().Login(p); err != nil {
+			return
+		}
+		l, err := d.App().ListTagByNames()
+		if err != nil {
+			return
+		}
+		if len(l) == 0 {
+			d.Parent().ShowTagDialog()
+			return
+		}
+		if err = d.Parent().Build(); err != nil {
+			return
+		}
+		d.Parent().Show()
 	})
 }
 
 // Reset ...
 func (d *SignDialog) Reset() (err error) {
+	defer func() {
+		if err != nil {
+			d.Log("reset with err=%q", err.Error())
+		} else {
+			d.Log("reset")
+		}
+	}()
 	// Input fields
 	if err = d.WriteEntry(signPassphrase, ""); err != nil {
-		return nil
+		return
 	}
 	if err = d.WriteEntry(signConfirmPassphrase, ""); err != nil {
-		return nil
+		return
 	}
 
 	// Sign in or sign up layout?
@@ -79,13 +102,15 @@ func (d *SignDialog) Reset() (err error) {
 	if err != nil {
 		return
 	}
-	cb := o.(*gtk.Box)
-	if d.App().Logged() == safe.ErrNotFound {
-		cb.Show()
+	if d.App().Logged() == app.ErrNotFound {
+		o.(*gtk.Box).Show()
 	} else {
-		cb.Hide()
+		o.(*gtk.Box).Hide()
 	}
-
-	// Error message
 	return d.Error(signError, "")
+}
+
+// Log implements the Plugin interface.
+func (d *SignDialog) Log(format string, args ...interface{}) {
+	d.Dialog.Log("dialog: sign: "+format, args...)
 }

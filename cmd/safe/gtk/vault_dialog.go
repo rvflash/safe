@@ -29,11 +29,13 @@ const (
 	vaultPwd      = "vault_password"
 	vaultURL      = "vault_url"
 	vaultNote     = "vault_note"
+
 	// Kinds of password's vault
 	vaultSelfGenerated = "vault_self_generated"
 	vaultCustomized    = "vault_customized"
 	vaultCustomizedBox = "vault_password_customized"
 	vaultHandwritten   = "vault_handwritten"
+
 	// Customization options.
 	vaultPwdLength      = "vault_password_length"
 	vaultPwdDigits      = "vault_password_digits"
@@ -52,6 +54,7 @@ type VaultDialog struct {
 func (d *VaultDialog) Init() (err error) {
 	// Cancellation.
 	err = d.ButtonClicked(vaultCancel, func() {
+		d.Log("cancelled")
 		d.Hide()
 	})
 	if err != nil {
@@ -74,8 +77,10 @@ func (d *VaultDialog) Init() (err error) {
 		var err error
 		defer func() {
 			if err != nil {
+				d.Log("err=%q", err.Error())
 				d.Error(vaultError, err.Error())
 			} else {
+				d.Log("submitted")
 				d.Hide()
 			}
 		}()
@@ -110,15 +115,15 @@ func (d *VaultDialog) Init() (err error) {
 		if err != nil {
 			return
 		}
-
-		// todo add the new vault
 		// var v *safe.Vault
 		if d.v == nil {
+			d.Log("try to create a vault named %q in %q", n, d.tag)
 			_, err = d.App().CreateVault(n, d.tag, l)
 		} else {
+			d.Log("try to update a vault named %q in %q", n, d.tag)
 			_, err = d.App().UpdateVault(n, d.tag, l)
 		}
-		return
+		// todo
 	})
 }
 
@@ -163,7 +168,7 @@ func (d *VaultDialog) showOptions(kind string) (err error) {
 	if err != nil {
 		return
 	}
-	if kind == vaultCustomizedBox {
+	if kind == vaultPwd {
 		o.(*gtk.Entry).Show()
 	} else {
 		o.(*gtk.Entry).Hide()
@@ -171,20 +176,28 @@ func (d *VaultDialog) showOptions(kind string) (err error) {
 	return
 }
 
-// New ...
-func (d *VaultDialog) New(tag string, name ...string) (err error) {
-	if len(name) != 1 {
+// Reload ...
+func (d *VaultDialog) Reload(tag string, vault ...string) (err error) {
+	if len(vault) != 1 {
 		// Creation
 		d.tag, d.v = tag, nil
 	} else {
 		// Update
-		d.v, err = d.App().Vault(name[0], tag)
+		d.v, err = d.App().Vault(vault[0], tag)
 	}
+	d.Log("reloaded (tag=%q, vault=%v)", tag, vault)
 	return
 }
 
 // Reset ...
 func (d *VaultDialog) Reset() (err error) {
+	defer func() {
+		if err != nil {
+			d.Log("reset with err=%q", err.Error())
+		} else {
+			d.Log("reset")
+		}
+	}()
 	// Input fields
 	n, err := d.ID(vaultName)
 	if err != nil {
@@ -233,7 +246,7 @@ func (d *VaultDialog) Reset() (err error) {
 		return
 	}
 	// Password
-	err = d.WriteEntry(vaultPwd, "**********")
+	err = d.WriteEntry(vaultPwd, "")
 	if err != nil {
 		return
 	}
@@ -277,4 +290,9 @@ func (d *VaultDialog) note() string {
 		return ""
 	}
 	return d.v.Login().Note
+}
+
+// Log implements the Plugin interface.
+func (d *VaultDialog) Log(format string, args ...interface{}) {
+	d.Dialog.Log("dialog: vault: "+format, args...)
 }

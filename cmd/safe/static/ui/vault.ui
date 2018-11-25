@@ -19,11 +19,12 @@
   </object>
   <object class="GtkDialog" id="vault">
     <property name="can_focus">False</property>
+    <property name="hexpand">True</property>
     <property name="type">popup</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
-    <property name="default_width">600</property>
-    <property name="default_height">500</property>
+    <property name="default_width">500</property>
+    <property name="default_height">440</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <property name="has_resize_grip">True</property>
@@ -37,6 +38,7 @@
         <property name="margin_right">10</property>
         <property name="margin_top">10</property>
         <property name="margin_bottom">10</property>
+        <property name="hexpand">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
@@ -50,7 +52,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="vault_cancel" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -64,7 +65,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="vault_save" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -83,11 +83,14 @@
           <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="orientation">vertical</property>
                 <property name="row_spacing">10</property>
                 <property name="column_spacing">10</property>
                 <child>
@@ -216,6 +219,7 @@
                   <object class="GtkBox" id="vault_password_lb">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkRadioButton" id="vault_self_generated">
@@ -226,7 +230,6 @@
                         <property name="halign">start</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
-                        <signal name="clicked" handler="vault_password_settings" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -243,7 +246,6 @@
                         <property name="halign">start</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">vault_self_generated</property>
-                        <signal name="clicked" handler="vault_password_settings" swapped="no"/>
                         <signal name="group-changed" handler="vault_password_settings" swapped="no"/>
                       </object>
                       <packing>
@@ -262,7 +264,6 @@
                         <property name="margin_bottom">10</property>
                         <property name="draw_indicator">True</property>
                         <property name="group">vault_self_generated</property>
-                        <signal name="clicked" handler="vault_password_settings" swapped="no"/>
                         <signal name="group-changed" handler="vault_password_settings" swapped="no"/>
                       </object>
                       <packing>
@@ -279,9 +280,11 @@
                 </child>
                 <child>
                   <object class="GtkEntry" id="vault_password">
+                    <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="invisible_char">●</property>
-                    <property name="placeholder_text" translatable="yes">••••••••</property>
+                    <property name="visibility">False</property>
+                    <property name="invisible_char">*</property>
+                    <property name="placeholder_text" translatable="yes">********</property>
                     <property name="input_purpose">password</property>
                   </object>
                   <packing>
@@ -290,7 +293,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="vault_password_customized_choices">
+                  <object class="GtkBox" id="vault_password_customized">
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">10</property>
@@ -298,6 +301,7 @@
                       <object class="GtkGrid">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="hexpand">True</property>
                         <property name="row_spacing">10</property>
                         <property name="column_spacing">10</property>
                         <property name="column_homogeneous">True</property>
@@ -400,7 +404,7 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
+                        <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
@@ -409,6 +413,7 @@
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="hexpand">True</property>
                         <property name="spacing">10</property>
                         <child>
                           <object class="GtkCheckButton" id="vault_password_uppercase">
@@ -460,7 +465,7 @@
                 </child>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
@@ -485,7 +490,7 @@
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
