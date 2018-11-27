@@ -38,7 +38,7 @@ func (d *ConfirmDialog) Init() (err error) {
 		if err = d.App().DeleteVault(d.vault, d.tag); err != nil {
 			return
 		}
-		// todo
+		err = d.Parent().DeleteVault(d.vault, d.tag)
 	})
 }
 

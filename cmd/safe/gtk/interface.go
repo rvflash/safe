@@ -88,12 +88,3 @@ type Listener interface {
 // todo
 type Builder interface {
 }
-
-// DataTable ...
-type DataTable interface {
-	Cols() []string
-	ColSizes() []int
-	Rows(upd, del FuncTwo, cp FuncOne) ([][]interface{}, error)
-	Types() []glib.Type
-	Title() string
-}

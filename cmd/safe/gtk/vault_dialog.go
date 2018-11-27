@@ -115,15 +115,21 @@ func (d *VaultDialog) Init() (err error) {
 		if err != nil {
 			return
 		}
-		// var v *safe.Vault
-		if d.v == nil {
+		var (
+			v   *safe.Vault
+			add = d.v == nil
+		)
+		if add {
 			d.Log("try to create a vault named %q in %q", n, d.tag)
-			_, err = d.App().CreateVault(n, d.tag, l)
+			v, err = d.App().CreateVault(n, d.tag, l)
 		} else {
 			d.Log("try to update a vault named %q in %q", n, d.tag)
-			_, err = d.App().UpdateVault(n, d.tag, l)
+			v, err = d.App().UpdateVault(n, d.tag, l)
 		}
-		// todo
+		if err != nil {
+			return
+		}
+		err = d.Parent().UpsertVault(v, add)
 	})
 }
 

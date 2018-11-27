@@ -54,7 +54,7 @@ func (d *TagDialog) Init() (err error) {
 			}
 			d.Parent().Show()
 		}
-		// todo add new tag
+		err = d.Parent().AddTag(s)
 	})
 }
 

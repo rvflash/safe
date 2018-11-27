@@ -8,174 +8,254 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
-	"github.com/rvflash/elapsed"
-	"github.com/rvflash/safe"
 )
-
-type vaults struct {
-	tag  string
-	data []*safe.Vault
-}
-
-func newDataTable(tag string, data []*safe.Vault) *vaults {
-	return &vaults{tag: tag, data: data}
-}
-
-// Cols ...
-func (d vaults) Cols() []string {
-	return []string{"Name", "Username", "Password", "URL", "Last updated", "Note", "*"}
-}
-
-// ColSizes ...
-func (d vaults) ColSizes() []int {
-	return []int{100, 170, 130, 150, 100, 120, 10}
-}
-
-// Rows ...
-func (d *vaults) Rows(upd, del FuncTwo, cp FuncOne) (rs [][]interface{}, err error) {
-	const (
-		name = iota
-		username
-		password
-		url
-		lastUpdated
-		note
-		actions
-	)
-	rs = make([][]interface{}, len(d.data))
-	for p, v := range d.data {
-		rs[p] = make([]interface{}, len(d.Cols()))
-		rs[p][name] = v.Name()
-		rs[p][username] = v.Login().Name
-		rs[p][password], err = NewLevelBar(float64(v.Login().Strength()), 0, 4)
-		if err != nil {
-			return nil, err
-		}
-		if v.Login().URL == nil {
-			rs[p][url], err = gtk.LabelNew("-")
-		} else {
-			rs[p][url], err = gtk.LinkButtonNewWithLabel(v.Login().URL.String(), v.Login().URL.Host)
-		}
-		if err != nil {
-			return nil, err
-		}
-		rs[p][lastUpdated] = elapsed.Time(v.Login().LastUpdate)
-		rs[p][note] = v.Login().Note
-		rs[p][actions], err = d.newMenuButton(upd, del, cp, p)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return rs, nil
-}
-
-func (d vaults) newMenuButton(upd, del FuncTwo, cp FuncOne, line int) (*gtk.MenuButton, error) {
-	m, err := NewMenuButton()
-	if err != nil {
-		return nil, err
-	}
-	b, err := NewButton("Edit Vault", func() {
-		upd(d.tag, d.data[line].Name())
-		m.MenuButton().Hide()
-	})
-	if err != nil {
-		return nil, err
-	}
-	m.Add(b)
-
-	b, err = NewButton("Copy Username", func() {
-		cp(d.data[line].Login().Name)
-		m.MenuButton().Hide()
-	})
-	if err != nil {
-		return nil, err
-	}
-	m.Add(b)
-
-	b, err = NewButton("Copy Password", func() {
-		cp(d.data[line].Login().Password)
-		m.MenuButton().Hide()
-	})
-	if err != nil {
-		return nil, err
-	}
-	m.Add(b)
-
-	sep, err := gtk.SeparatorMenuItemNew()
-	if err != nil {
-		return nil, err
-	}
-	m.Add(sep)
-
-	b, err = NewButton("Delete Vault", func() {
-		del(d.tag, d.data[line].Name())
-		m.MenuButton().Hide()
-	})
-	if err != nil {
-		return nil, err
-	}
-	return m.MenuButton(), nil
-}
-
-// Title ...
-func (d vaults) Title() string {
-	return d.tag
-}
-
-// Types ...
-func (d vaults) Types() []glib.Type {
-	return []glib.Type{
-		glib.TYPE_STRING, glib.TYPE_STRING, glib.TYPE_POINTER, glib.TYPE_POINTER,
-		glib.TYPE_STRING, glib.TYPE_STRING, glib.TYPE_POINTER,
-	}
-}
 
 // Note ...
 type Note struct {
-	box   *gtk.Box
-	title string
+	title  string
+	widget *gtk.Paned
 }
 
 // NewNote ...
-func NewNote(v DataTable, add FuncOne, upd, del FuncTwo, cp FuncOne) (*Note, error) {
-	hb, err := NewVBox()
-	if err != nil {
-		return nil, err
-	}
-
-	// Adds a button to create a new vault.
-	b, err := NewButton("New Vault", func() {
-		add(v.Title())
+func NewNote(list DataTable, add FuncOne, upd, del FuncTwo, cp FuncOne) (*Note, error) {
+	l, err := newNoteSideBar(list, add, func(a, b string) {
+		fmt.Printf("show %q in %q\n", a, b)
 	})
 	if err != nil {
 		return nil, err
 	}
-	b.SetHExpand(false)
+	r, err := newNoteInfo(upd, del, cp)
+	if err != nil {
+		return nil, err
+	}
+	p, err := gtk.PanedNew(gtk.ORIENTATION_HORIZONTAL)
+	if err != nil {
+		return nil, err
+	}
+	p.Pack1(l, true, false)
+	p.Pack2(r, true, false)
+
+	return &Note{title: list.Title(), widget: p}, nil
+}
+
+func newNoteInfo(upd, del FuncTwo, cp FuncOne) (gtk.IWidget, error) {
+	// Vault actions
+	hb, err := NewHBox()
+	if err != nil {
+		return nil, err
+	}
+	b, err := NewButton("Edit", func() { fmt.Println("edit") }, 5, 0, 5)
+	if err != nil {
+		return nil, err
+	}
 	hb.Add(b)
 
+	b, err = NewButton("Delete", func() { fmt.Println("delete") }, 5, 10, 5)
+	if err != nil {
+		return nil, err
+	}
+	hb.Add(b)
+
+	// Header (name and update, delete buttons)
+	h, err := gtk.InfoBarNew()
+	if err != nil {
+		return nil, err
+	}
+	h.SetMessageType(gtk.MESSAGE_INFO)
+	h.PackEnd(hb, false, true, 0)
+	//h.SetSizeRequest(480, )
+
+	// Vaults properties
+	vb, err := NewVBox()
+	if err != nil {
+		return nil, err
+	}
+	vb.SetMarginBottom(defaultMargin)
+	vb.SetSizeRequest(200, 400)
+
+	sw, err := NewScrolledWindow(false, true)
+	if err != nil {
+		return nil, err
+	}
+	sw.Add(vb)
+
+	mb, err := NewVBox()
+	if err != nil {
+		return nil, err
+	}
+	mb.SetMarginTop(defaultMargin / 2)
+	mb.PackStart(h, false, true, 0)
+	mb.Add(sw)
+
+	l, err := NewLabel("Vault name", font(titleFontSize), defaultMargin*2, defaultMargin, defaultMargin, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	l.SetHAlign(gtk.ALIGN_START)
+	vb.Add(l)
+
+	l, err = NewLabel("Username:", font(defaultFontSize), defaultMargin, defaultMargin, 0, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	l.SetHAlign(gtk.ALIGN_START)
+	//l.SetJustify(gtk.JUSTIFY_LEFT)
+	//l.SetHExpand(true)
+	vb.Add(l)
+
+	hb, err = NewHBox()
+	if err != nil {
+		return nil, err
+	}
+	l, err = NewLabel("hgouchet@gmail.com", font(defaultFontSize+1), defaultMargin/2, defaultMargin, defaultMargin, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	l.SetHAlign(gtk.ALIGN_START)
+	l.SetSelectable(true)
+	hb.PackStart(l, true, true, 0)
+
+	b, err = NewButton("Copy", func() { fmt.Println("copy") }, 0, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	//b.SetHAlign(gtk.ALIGN_START)
+	hb.PackEnd(b, false, true, 0)
+	vb.Add(hb)
+
+	l, err = NewLabel("Password:", font(defaultFontSize), defaultMargin, defaultMargin, 0, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	l.SetHAlign(gtk.ALIGN_START)
+	vb.Add(l)
+
+	hb, err = NewHBox()
+	if err != nil {
+		return nil, err
+	}
+	l, err = NewLabel("********", font(defaultFontSize+1), defaultMargin/2, defaultMargin, defaultMargin, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	l.SetHAlign(gtk.ALIGN_START)
+	hb.PackStart(l, true, true, 0)
+
+	b, err = NewButton("Copy", func() { fmt.Println("copy") }, 0, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	//b.SetHAlign(gtk.ALIGN_START)
+	hb.PackEnd(b, false, true, 0)
+	vb.Add(hb)
+
+	l, err = NewLabel("Note:", font(defaultFontSize), defaultMargin, defaultMargin, 0, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	l.SetHAlign(gtk.ALIGN_START)
+	vb.Add(l)
+
+	l, err = NewLabel(`a
+b
+c
+d
+e
+f
+g
+h
+i
+j
+-`, font(defaultFontSize+1), defaultMargin/2, defaultMargin, defaultMargin, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	l.SetHAlign(gtk.ALIGN_START)
+	l.SetSelectable(true)
+	vb.Add(l)
+
+	lk, err := gtk.LinkButtonNewWithLabel("https://www.google.fr", "www.google.fr")
+	if err != nil {
+		return nil, err
+	}
+	lk.SetHAlign(gtk.ALIGN_START)
+	vb.Add(lk)
+
+	lb, err := NewLevelBar(2, 0, 4)
+	if err != nil {
+		return nil, err
+	}
+	vb.Add(lb)
+
+	l, err = NewLabel("Last updated: 3 days ago", font(defaultFontSize), defaultMargin, defaultMargin, 0, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	l.SetHAlign(gtk.ALIGN_START)
+	//l.SetJustify(gtk.JUSTIFY_LEFT)
+	//l.SetHExpand(true)
+	vb.Add(l)
+
+	l, err = NewLabel("Creation: 5 days ago", font(defaultFontSize), defaultMargin, defaultMargin, 0, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	l.SetHAlign(gtk.ALIGN_START)
+	//l.SetJustify(gtk.JUSTIFY_LEFT)
+	//l.SetHExpand(true)
+	vb.Add(l)
+
+	return mb, nil
+}
+
+func newNoteSideBar(list DataTable, add FuncOne, show FuncTwo) (gtk.IWidget, error) {
+	// Main content
+	tv, err := NewTreeView(list, show)
+	if err != nil {
+		return nil, err
+	}
+	// Header (search bar + add vault)
+	hb, err := NewHBox()
+	if err != nil {
+		return nil, err
+	}
+	// Search bar
+	s, err := NewSearchEntry("Search ...", tv.Search, defaultMargin, defaultMargin, 0, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	hb.Add(s)
+	// Adds a button to create a new vault.
+	b, err := NewButton("New Vault", func() {
+		add(list.Title())
+	}, defaultMargin, defaultMargin, 0, defaultMargin)
+	if err != nil {
+		return nil, err
+	}
+	hb.Add(b)
+
+	// Side bar (header, vaults list)
+	vb, err := NewVBox()
+	if err != nil {
+		return nil, err
+	}
+	vb.Add(hb)
+
 	// Lists all tag's vaults.
-	tv, err := NewTreeView(v.Cols(), v.ColSizes(), v.Types())
+	sp, err := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
 	if err != nil {
 		return nil, err
 	}
-	rs, err := v.Rows(upd, del, cp)
-	if err != nil {
-		return nil, err
-	}
-	for _, d := range rs {
-		if err = tv.AddRow(d...); err != nil {
-			return nil, err
-		}
-	}
+	vb.Add(sp)
+
 	sw, err := tv.ScrollTreeView(true, true)
 	if err != nil {
 		return nil, err
 	}
-	hb.PackStart(sw, true, true, 0)
+	vb.PackStart(sw, true, true, 0)
 
-	return &Note{title: v.Title(), box: hb}, nil
+	return vb, nil
 }
 
 // Title ...
@@ -184,8 +264,8 @@ func (n *Note) Title() string {
 }
 
 // Widget ...
-func (n *Note) Widget() *gtk.Box {
-	return n.box
+func (n *Note) Widget() *gtk.Paned {
+	return n.widget
 }
 
 // Notebook ...
@@ -200,6 +280,8 @@ func NewNotebook(name string, clicked Func, pages ...*Note) (*Notebook, error) {
 	if err != nil {
 		return nil, err
 	}
+	c.SetScrollable(true)
+	c.SetShowBorder(true)
 
 	// Title
 	l, err := NewLabel(name, font(titleFontSize), 0, defaultMargin, 0, defaultMargin)
@@ -210,7 +292,7 @@ func NewNotebook(name string, clicked Func, pages ...*Note) (*Notebook, error) {
 	c.SetActionWidget(l, gtk.PACK_START)
 
 	// New Page
-	b, err := NewButton("Add", clicked)
+	b, err := NewButton("Add", clicked, defaultMargin, defaultMargin, defaultMargin, defaultMargin)
 	if err != nil {
 		return nil, err
 	}
@@ -220,8 +302,8 @@ func NewNotebook(name string, clicked Func, pages ...*Note) (*Notebook, error) {
 	// Adds pages
 	book := &Notebook{c: c}
 	book.init(pages)
-	for _, note := range pages {
-		if err = book.AddPage(note); err != nil {
+	for i, note := range pages {
+		if err = book.add(note, i); err != nil {
 			return nil, err
 		}
 	}
@@ -238,21 +320,29 @@ func (n *Notebook) init(pages []*Note) {
 	sort.Strings(n.index)
 }
 
-// AddPage ...
-func (n *Notebook) AddPage(note *Note) error {
-	// Creates the tab
-	l, err := NewLabel(note.Title(), font(defaultFontSize))
+func (n *Notebook) add(p *Note, pos int) error {
+	// Creates the tab.
+	l, err := NewLabel(p.Title(), font(defaultFontSize))
 	if err != nil {
 		return err
 	}
-	// Adds the page content
-	i := n.c.InsertPage(note.Widget(), l, n.numPage(note.Title()))
-	// Updates the summary.
-	if len(n.index) == i {
-		n.index = append(n.index, "")
-		copy(n.index[i+1:], n.index[i:])
-		n.index[i] = note.Title()
+	i := n.c.InsertPage(p.Widget(), l, pos)
+	n.c.SetCurrentPage(i)
+	n.c.ShowAll()
+
+	return nil
+}
+
+// AddPage ...
+func (n *Notebook) AddPage(p *Note) error {
+	// Adds a page to the book.
+	if err := n.add(p, n.numPage(p.Title())); err != nil {
+		return err
 	}
+	// Updates the summary.
+	n.index = append(n.index, p.Title())
+	sort.Strings(n.index)
+
 	return nil
 }
 

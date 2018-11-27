@@ -70,7 +70,7 @@ func (d *SignDialog) Init() (err error) {
 			return
 		}
 		if len(l) == 0 {
-			d.Parent().ShowTagDialog()
+			d.Parent().showTagDialog()
 			return
 		}
 		if err = d.Parent().Build(); err != nil {

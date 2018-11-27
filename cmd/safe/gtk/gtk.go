@@ -5,10 +5,7 @@
 package gtk
 
 import (
-	"log"
-
 	"github.com/gotk3/gotk3/gdk"
-	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 )
 
@@ -19,36 +16,63 @@ const (
 	titleFontSize   = 16
 )
 
-// NewButton ...
-func NewButton(label string, clicked Func) (*gtk.Button, error) {
-	b, err := gtk.ButtonNewWithLabel(label)
+// NewSearchEntry ...
+func NewSearchEntry(placeholder string, search FuncOne, margin ...int) (*gtk.SearchEntry, error) {
+	top, right, bottom, left := spaces(margin)
+	w, err := gtk.SearchEntryNew()
 	if err != nil {
 		return nil, err
 	}
-	b.SetMarginBottom(defaultMargin)
-	b.SetMarginEnd(defaultMargin)
-	b.SetMarginStart(defaultMargin)
-	b.SetMarginTop(defaultMargin)
-	if _, err = b.Connect("clicked", clicked); err != nil {
+	w.SetPlaceholderText(placeholder)
+	w.SetMarginBottom(bottom)
+	w.SetMarginEnd(right)
+	w.SetMarginStart(left)
+	w.SetMarginTop(top)
+	if _, err = w.Connect("search-changed", func(e *gtk.SearchEntry) {
+		s, _ := e.GetText()
+		search(s)
+	}); err != nil {
 		return nil, err
 	}
-	return b, nil
+	if _, err = w.Connect("stop-search", func() {
+		search("")
+	}); err != nil {
+		return nil, err
+	}
+	return w, nil
+}
+
+// NewButton ...
+func NewButton(label string, clicked Func, margin ...int) (*gtk.Button, error) {
+	top, right, bottom, left := spaces(margin)
+	w, err := gtk.ButtonNewWithLabel(label)
+	if err != nil {
+		return nil, err
+	}
+	w.SetMarginBottom(bottom)
+	w.SetMarginEnd(right)
+	w.SetMarginStart(left)
+	w.SetMarginTop(top)
+	if _, err = w.Connect("clicked", clicked); err != nil {
+		return nil, err
+	}
+	return w, nil
 }
 
 // NewLabel ...
 func NewLabel(label, font string, margin ...int) (*gtk.Label, error) {
 	top, right, bottom, left := spaces(margin)
-	l, err := gtk.LabelNew(label)
+	w, err := gtk.LabelNew(label)
 	if err != nil {
 		return nil, err
 	}
-	l.SetMarginBottom(bottom)
-	l.SetMarginEnd(right)
-	l.SetMarginStart(left)
-	l.SetMarginTop(top)
-	l.SetFont(font)
+	w.SetMarginBottom(bottom)
+	w.SetMarginEnd(right)
+	w.SetMarginStart(left)
+	w.SetMarginTop(top)
+	w.SetFont(font)
 
-	return l, nil
+	return w, nil
 }
 
 func spaces(side []int) (top, right, bottom, left int) {
@@ -135,132 +159,6 @@ func (m *MenuButton) Add(item gtk.IWidget) {
 // MenuButton ...
 func (m *MenuButton) MenuButton() *gtk.MenuButton {
 	return m.b
-}
-
-// TreeView ...
-type TreeView struct {
-	v    *gtk.TreeView
-	s    *gtk.ListStore
-	cols []int
-}
-
-// NewTreeView ...
-func NewTreeView(cols []string, sizes []int, types []glib.Type) (*TreeView, error) {
-	v, err := gtk.TreeViewNew()
-	if err != nil {
-		return nil, err
-	}
-	// connect + select: tmp (debug)
-	c, err := v.GetSelection()
-	if err != nil {
-		return nil, err
-	}
-	c.SetMode(gtk.SELECTION_SINGLE)
-	c.Connect("changed", func(s *gtk.TreeSelection) {
-		var iter *gtk.TreeIter
-		var model gtk.ITreeModel
-		var ok bool
-		model, iter, ok = s.GetSelected()
-		if ok {
-			tpath, err := model.(*gtk.TreeModel).GetPath(iter)
-			if err != nil {
-				log.Printf("treeSelectionChangedCB: Could not get path from model: %s\n", err)
-				return
-			}
-			log.Printf("treeSelectionChangedCB: selected path: %s\n", tpath)
-		}
-	})
-
-	t := &TreeView{v: v}
-	if err = t.withColumns(cols, sizes); err != nil {
-		return nil, err
-	}
-	if err = t.withStoreTypes(types); err != nil {
-		return nil, err
-	}
-	return t, nil
-}
-
-// AddRow ...
-func (t *TreeView) AddRow(d ...interface{}) error {
-	if t.s == nil {
-		return ErrUndObject
-	}
-	l := t.s.Append()
-	for i := range t.cols {
-		if i > 1 {
-			return nil
-		}
-		t.s.SetValue(l, i, d[i])
-	}
-	return nil
-}
-
-// withColumns ...
-func (t *TreeView) withColumns(d []string, w []int) error {
-	if len(d) == 0 || len(d) != len(w) {
-		return ErrUndColumn
-	}
-	r, err := gtk.CellRendererTextNew()
-	if err != nil {
-		return err
-	}
-	for i, s := range d {
-		c, err := gtk.TreeViewColumnNewWithAttribute(s, r, "text", i)
-		if err != nil {
-			return err
-		}
-		c.SetMinWidth(w[i])
-		t.v.AppendColumn(c)
-		t.cols = append(t.cols, i)
-	}
-	return nil
-}
-
-// withStoreTypes ...
-func (t *TreeView) withStoreTypes(d []glib.Type) (err error) {
-	t.s, err = gtk.ListStoreNew(d...)
-	if err != nil {
-		return
-	}
-	t.v.SetModel(t.s)
-	return
-}
-
-// ScrollTreeView ...
-func (t *TreeView) ScrollTreeView(v, h bool) (*gtk.ScrolledWindow, error) {
-	if t.s == nil {
-		return nil, ErrUndObject
-	}
-	s, err := NewScrolledWindow(v, h)
-	if err != nil {
-		return nil, err
-	}
-	s.Add(t.TreeView())
-	return s, nil
-}
-
-// TreeView ...
-func (t *TreeView) TreeView() *gtk.TreeView {
-	return t.v
-}
-
-// NewScrolledWindow
-func NewScrolledWindow(h, v bool) (*gtk.ScrolledWindow, error) {
-	s, err := gtk.ScrolledWindowNew(nil, nil)
-	if err != nil {
-		return nil, err
-	}
-	policy := func(need bool) gtk.PolicyType {
-		if need {
-			return gtk.POLICY_AUTOMATIC
-		}
-		return gtk.POLICY_NEVER
-	}
-	s.SetHExpand(h)
-	s.SetVExpand(v)
-	s.SetPolicy(policy(h), policy(v))
-	return s, nil
 }
 
 // NewHBox ...
