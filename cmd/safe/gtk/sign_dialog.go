@@ -41,7 +41,9 @@ func (d *SignDialog) Init() (err error) {
 		defer func() {
 			if err != nil {
 				d.Log("err=%q", err.Error())
-				d.Error(signError, err.Error())
+				if err = d.Error(signError, err.Error()); err != nil {
+					d.Log("fails to display the error: %s", err)
+				}
 			} else {
 				d.Log("logged")
 				d.Hide()
@@ -70,7 +72,7 @@ func (d *SignDialog) Init() (err error) {
 			return
 		}
 		if len(l) == 0 {
-			d.Parent().showTagDialog()
+			d.Parent().ShowTagDialog()
 			return
 		}
 		if err = d.Parent().Build(); err != nil {

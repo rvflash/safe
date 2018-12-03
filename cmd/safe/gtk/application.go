@@ -17,23 +17,19 @@ import (
 
 // Application ...
 type Application struct {
-	fs   http.FileSystem
-	conf *gtk.Settings
-	win  *Window
+	fs  http.FileSystem
+	win *Window
 }
 
 // Init ...
 func Init(args *[]string, db *app.Safe, log Logger, debug bool) (*Application, error) {
-	// First of all, initialize GTK.
+	// First at all, initializes GTK.
 	gtk.Init(args)
 
 	// Defines the theme to use as default.
-	s, err := gtk.SettingsGetDefault()
-	if err != nil {
+	if err := applyDarkTheme(); err != nil {
 		return nil, err
 	}
-	s.Set("gtk-application-prefer-dark-theme", true)
-
 	// Debug mode.
 	if !debug {
 		log = nil
@@ -45,9 +41,8 @@ func Init(args *[]string, db *app.Safe, log Logger, debug bool) (*Application, e
 		return nil, err
 	}
 	a := &Application{
-		fs:   static.FS(!debug),
-		conf: s,
-		win:  w,
+		fs:  static.FS(!debug),
+		win: w,
 	}
 
 	// Adds dialogs.
@@ -67,6 +62,14 @@ func Init(args *[]string, db *app.Safe, log Logger, debug bool) (*Application, e
 		a.win.Log("app: %s attached", path)
 	}
 	return a, nil
+}
+
+func applyDarkTheme() error {
+	s, err := gtk.SettingsGetDefault()
+	if err != nil {
+		return err
+	}
+	return s.Set("gtk-application-prefer-dark-theme", true)
 }
 
 func (a *Application) readFile(path string) (string, error) {

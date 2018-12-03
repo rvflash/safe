@@ -53,17 +53,22 @@ type Plugin interface {
 	Log(format string, args ...interface{})
 }
 
-// WidgetContainer
-type WidgetContainer interface {
-	Container
-	Plugin
-	IWidget() gtk.IWidget
+//ReLoader ...
+type ReLoader interface {
+	Reload(tag string, vault ...string)
 }
 
 /// Visibility ...
 type Visibility interface {
 	Hide()
 	Show()
+}
+
+// WidgetContainer
+type WidgetContainer interface {
+	Container
+	Plugin
+	IWidget() gtk.IWidget
 }
 
 // VisibleContainer ...
@@ -75,7 +80,7 @@ type VisibleWidgetContainer interface {
 // LoadVisibleWidgetContainer ...
 type LoadVisibleWidgetContainer interface {
 	VisibleWidgetContainer
-	Reload(tag string, vault ...string) error
+	ReLoader
 }
 
 // Listener ...

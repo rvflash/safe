@@ -33,7 +33,9 @@ func (d *TagDialog) Init() (err error) {
 		defer func() {
 			if err != nil {
 				d.Log("err=%q", err.Error())
-				d.Error(tagError, err.Error())
+				if err = d.Error(tagError, err.Error()); err != nil {
+					d.Log("fails to display the error: %s", err)
+				}
 			} else {
 				d.Log("created")
 				d.Hide()

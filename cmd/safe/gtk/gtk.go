@@ -92,12 +92,12 @@ func spaces(side []int) (top, right, bottom, left int) {
 }
 
 // NewLevelBar ...
-func NewLevelBar(val, min, max float64) (*gtk.LevelBar, error) {
-	l, err := gtk.LevelBarNewForInterval(min, max)
+func NewLevelBar(val, min, max int) (*gtk.LevelBar, error) {
+	l, err := gtk.LevelBarNewForInterval(float64(min), float64(max))
 	if err != nil {
 		return nil, err
 	}
-	l.SetValue(val)
+	l.SetValue(float64(val))
 
 	return l, nil
 }
@@ -131,36 +131,6 @@ type MenuButton struct {
 	m *gtk.Menu
 }
 
-func NewMenuButton() (*MenuButton, error) {
-	b, err := gtk.MenuButtonNew()
-	if err != nil {
-		return nil, err
-	}
-	b.SetDirection(gtk.ARROW_DOWN)
-	b.SetHAlign(gtk.ALIGN_END)
-
-	// Creates the menu to show on click.
-	c, err := gtk.MenuNew()
-	if err != nil {
-		return nil, err
-	}
-	b.SetPopup(c)
-
-	return &MenuButton{b: b, m: c}, nil
-}
-
-// Add ...
-func (m *MenuButton) Add(item gtk.IWidget) {
-	if m.m != nil {
-		m.m.Add(item)
-	}
-}
-
-// MenuButton ...
-func (m *MenuButton) MenuButton() *gtk.MenuButton {
-	return m.b
-}
-
 // NewHBox ...
 func NewHBox() (*gtk.Box, error) {
 	return gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, defaultMargin)
@@ -169,4 +139,22 @@ func NewHBox() (*gtk.Box, error) {
 // NewVBox ...
 func NewVBox() (*gtk.Box, error) {
 	return gtk.BoxNew(gtk.ORIENTATION_VERTICAL, defaultMargin)
+}
+
+// NewScrolledWindow ...
+func NewScrolledWindow(h, v bool) (*gtk.ScrolledWindow, error) {
+	s, err := gtk.ScrolledWindowNew(nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	policy := func(need bool) gtk.PolicyType {
+		if need {
+			return gtk.POLICY_AUTOMATIC
+		}
+		return gtk.POLICY_NEVER
+	}
+	s.SetHExpand(h)
+	s.SetVExpand(v)
+	s.SetPolicy(policy(h), policy(v))
+	return s, nil
 }

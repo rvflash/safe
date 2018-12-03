@@ -35,6 +35,8 @@ func NewWindow(app *app.Safe, log Logger, title string, width, height int) (*Win
 	return &Window{db: app, log: log, win: w, cb: c}, nil
 }
 
+type notes map[string]*tagNote
+
 // Window ...
 type Window struct {
 	book    *Notebook
@@ -46,6 +48,7 @@ type Window struct {
 	tag     *TagDialog
 	vault   *VaultDialog
 	win     *gtk.Window
+	tabs    notes
 }
 
 // App ...
@@ -83,18 +86,16 @@ func (w *Window) Build() error {
 	if err != nil {
 		return err
 	}
-	w.Log("win: expected %d tag(s)", len(t))
-
-	n, err := w.toNotes(t)
+	w.tabs, err = w.toNotes(t)
 	if err != nil {
 		return err
 	}
-	w.Log("win: %d notes built", len(n))
-
-	w.book, err = NewNotebook("Safe", w.showTagDialog, n...)
+	w.book, err = NewNotebook("Safe", w.ShowTagDialog, w.tabs)
 	if err != nil {
 		return err
 	}
+
+	// Logout button
 	b, err := NewButton("Logout", gtk.MainQuit, 0, defaultMargin, defaultMargin, defaultMargin)
 	if err != nil {
 		return err
@@ -109,19 +110,18 @@ func (w *Window) Build() error {
 	hb.Add(b)
 	// Attaches the container to the window.
 	w.win.Add(hb)
-	w.Log("win: built")
 
 	return nil
 }
 
-func (w *Window) toNotes(tags []*safe.Tag) ([]*Note, error) {
-	notes := make([]*Note, len(tags))
-	for i, t := range tags {
+func (w *Window) toNotes(tags []*safe.Tag) (notes, error) {
+	notes := make(map[string]*tagNote, len(tags))
+	for _, t := range tags {
 		d, err := w.App().ListVaultByNames(t.Name(), "")
 		if err != nil {
 			return nil, err
 		}
-		notes[i], err = w.newNote(t.Name(), d)
+		notes[t.Name()], err = newTagNote(newVaultTable(t.Name(), d), w.ShowNewVaultDialog, w.ShowVaultInfo)
 		if err != nil {
 			return nil, err
 		}
@@ -130,33 +130,60 @@ func (w *Window) toNotes(tags []*safe.Tag) ([]*Note, error) {
 	return notes, nil
 }
 
-func (w *Window) newNote(name string, data []*safe.Vault) (*Note, error) {
-	return NewNote(
-		newVaultTable(name, data),
-		w.showNewVaultDialog,
-		w.showUpdVaultDialog,
-		w.showDelVaultConfirm,
-		w.cb.Copy,
-	)
+// ShowVaultInfo ...
+func (w *Window) ShowVaultInfo(tag, vault string) {
+	n, ok := w.tabs[tag]
+	if !ok {
+		w.Log("win: vault: unknown tag named %q", tag)
+		return
+	}
+	v, err := w.App().Vault(vault, tag)
+	if err != nil {
+		w.Log("win: vault: %q is unknown in %q", vault, tag)
+		return
+	}
+	if err = n.View(v, w.ShowUpdVaultDialog, w.ShowDelVaultConfirm, w.cb.Copy); err != nil {
+		w.Log("win: vault: fails to show %q in %q", vault, tag)
+	}
+	w.Log("win: vault: %q in %q displayed", vault, tag)
 }
 
 // AddTag ...
 func (w *Window) AddTag(name string) error {
-	n, err := w.newNote(name, nil)
+	n, err := newTagNote(newVaultTable(name, nil), w.ShowNewVaultDialog, w.ShowVaultInfo)
 	if err != nil {
 		return err
 	}
-	return w.book.AddPage(n)
+	if err = w.book.AddPage(n); err != nil {
+		return err
+	}
+	w.tabs[name] = n
+
+	return nil
 }
 
 // DeleteVault ...
-func (w *Window) DeleteVault(vault, tag string) error {
-	return nil
+func (w *Window) DeleteVault(tag, vault string) error {
+	n, ok := w.tabs[tag]
+	if !ok {
+		return safe.ErrMissing
+	}
+	return n.Delete(vault)
 }
 
 // AddVault ...
 func (w *Window) UpsertVault(v *safe.Vault, add bool) error {
-	return nil
+	if v == nil {
+		return safe.ErrMissing
+	}
+	n, ok := w.tabs[v.Tag().Name()]
+	if !ok {
+		return safe.ErrMissing
+	}
+	if add {
+		return n.Add(v)
+	}
+	return n.Update(v)
 }
 
 // Close ...
@@ -188,37 +215,50 @@ func (w *Window) Show() {
 	}
 }
 
-// showDelVaultConfirm ...
-func (w *Window) showDelVaultConfirm(tag, vault string) {
-	w.confirm.Reload(tag, vault)
-	w.showDialog(w.confirm)
+// ShowDelVaultConfirm ...
+func (w *Window) ShowDelVaultConfirm(tag, vault string) {
+	w.reloadDialog(w.confirm, tag, vault)
 }
 
 // ShowVaultDialog ...
-func (w *Window) showNewVaultDialog(tag string) {
-	w.vault.Reload(tag)
-	w.showDialog(w.vault)
+func (w *Window) ShowNewVaultDialog(tag string) {
+	w.reloadDialog(w.vault, tag)
 }
 
-// showTagDialog ...
-func (w *Window) showTagDialog() {
+// ShowTagDialog ...
+func (w *Window) ShowTagDialog() {
 	w.showDialog(w.tag)
 }
 
 // ShowVaultDialog ...
-func (w *Window) showUpdVaultDialog(tag, vault string) {
-	w.vault.Reload(tag, vault)
-	w.showDialog(w.vault)
+func (w *Window) ShowUpdVaultDialog(tag, vault string) {
+	w.reloadDialog(w.vault, tag, vault)
 }
 
-func (w *Window) showDialog(d VisibleWidgetContainer) (err error) {
+func (w *Window) reloadDialog(d LoadVisibleWidgetContainer, args ...string) {
 	if err := d.Reset(); err != nil {
 		d.Log("fails to display, err=%q", err.Error())
-		return err
+		return
+	}
+	switch len(args) {
+	case 1:
+		// tag name
+		d.Reload(args[0])
+	case 2:
+		//tag name + vault name
+		d.Reload(args[0], args[1])
 	}
 	d.Show()
 	d.Log("displayed")
-	return nil
+}
+
+func (w *Window) showDialog(d VisibleWidgetContainer) {
+	if err := d.Reset(); err != nil {
+		d.Log("fails to display, err=%q", err.Error())
+		return
+	}
+	d.Show()
+	d.Log("displayed")
 }
 
 // ShowAll implements the Visibility interface.

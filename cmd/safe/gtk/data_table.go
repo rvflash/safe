@@ -46,19 +46,28 @@ func (d vaultTable) ColSizes() []int {
 
 // Rows ...
 func (d *vaultTable) Rows() [][]interface{} {
+
+	rs := make([][]interface{}, len(d.data))
+	for p, v := range d.data {
+		rs[p] = row(v)
+	}
+	return rs
+}
+
+func row(v *safe.Vault) []interface{} {
+	if v.Login() == nil {
+		return nil
+	}
 	const (
 		name = iota
 		username
 		filter
 	)
-	rs := make([][]interface{}, len(d.data))
-	for p, v := range d.data {
-		rs[p] = make([]interface{}, len(d.Cols()))
-		rs[p][name] = v.Name()
-		rs[p][username] = v.Login().Name
-		rs[p][filter] = true
+	return []interface{}{
+		name:     v.Name(),
+		username: v.Login().Name,
+		filter:   true,
 	}
-	return rs
 }
 
 // Title ...

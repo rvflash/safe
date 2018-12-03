@@ -13,11 +13,13 @@ import (
 
 // TreeView ...
 type TreeView struct {
-	v         *gtk.TreeView
-	s         *gtk.ListStore
-	f         *gtk.TreeModelFilter
-	d         DataTable
-	filtering int
+	d   DataTable
+	mf  *gtk.TreeModelFilter
+	col int
+	ls  *gtk.ListStore
+	pos map[string]*gtk.TreeIter
+	s   *gtk.TreeSelection
+	v   *gtk.TreeView
 }
 
 // NewTreeView ...
@@ -32,23 +34,40 @@ func NewTreeView(list DataTable, changed FuncTwo) (*TreeView, error) {
 	v.SetMarginTop(0)
 	v.SetName(list.Title())
 
-	t := &TreeView{v: v, d: list, filtering: -1}
-	if err := t.buildColumns(); err != nil {
+	s, err := v.GetSelection()
+	if err != nil {
 		return nil, err
+	}
+	s.SetMode(gtk.SELECTION_SINGLE)
+
+	t := &TreeView{
+		v:   v,
+		s:   s,
+		d:   list,
+		col: -1,
+		pos: make(map[string]*gtk.TreeIter),
+	}
+	return t, t.init(changed)
+}
+
+func (t *TreeView) init(changed FuncTwo) (err error) {
+	if err = t.buildColumns(); err != nil {
+		return
 	}
 	if err = t.applyModel(); err != nil {
-		return nil, err
+		return
 	}
 	if err = t.onChanged(changed); err != nil {
-		return nil, err
+		return
 	}
-	for _, d := range list.Rows() {
-		if err = t.AddRow(d...); err != nil {
-			return nil, err
+	for _, d := range t.d.Rows() {
+		if err = t.AddRow(d); err != nil {
+			return
 		}
 	}
-	return t, nil
+	return
 }
+
 func (t *TreeView) buildColumns() error {
 	// Integrity controls.
 	if len(t.d.Cols()) == 0 || len(t.d.Cols()) != len(t.d.ColSizes()) {
@@ -62,37 +81,58 @@ func (t *TreeView) buildColumns() error {
 		c *gtk.TreeViewColumn
 		w = t.d.ColSizes()
 	)
+	// Columns header
 	for i, s := range t.d.Cols() {
 		c, err = gtk.TreeViewColumnNewWithAttribute(s, r, "text", i)
 		if err != nil {
 			return err
 		}
+		// Filtering
 		if w[i] > 0 {
 			c.SetMinWidth(w[i])
 		} else {
-			t.filtering = i
+			// Invisible column used to col it.
+			t.col = i
 			c.SetVisible(false)
 		}
+		// Default sort order
+		if i == t.d.ColID() {
+			c.SetSortIndicator(true)
+			c.SetSortOrder(gtk.SORT_ASCENDING)
+		}
+		/* Changes the sort order.
+		i := i
+		c.SetClickable(true)
+		c.Connect("clicked", func() {
+			if t.v.GetColumn(i).GetSortIndicator() {
+				t.ls.SetSortColumnId(i, gtk.SORT_ASCENDING)
+			} else {
+				t.ls.SetSortColumnId(i, gtk.SORT_DESCENDING)
+			}
+		})
+		*/
 		t.v.AppendColumn(c)
 	}
 	return err
 }
 
 func (t *TreeView) applyModel() (err error) {
-	t.s, err = gtk.ListStoreNew(t.d.Types()...)
+	t.ls, err = gtk.ListStoreNew(t.d.Types()...)
 	if err != nil {
 		return
 	}
-	if t.filtering > -1 {
+	t.ls.SetSortColumnId(t.d.ColID(), gtk.SORT_ASCENDING)
+
+	if t.col > -1 {
 		p, _ := t.v.GetCursor()
-		t.f, err = t.s.FilterNew(p)
+		t.mf, err = t.ls.FilterNew(p)
 		if err != nil {
 			return
 		}
-		t.f.SetVisibleColumn(t.filtering)
-		t.v.SetModel(t.f)
+		t.mf.SetVisibleColumn(t.col)
+		t.v.SetModel(t.mf)
 	} else {
-		t.v.SetModel(t.s)
+		t.v.SetModel(t.ls)
 	}
 	return
 }
@@ -106,13 +146,8 @@ func (t *TreeView) onChanged(changed FuncTwo) error {
 	if err != nil {
 		return err
 	}
-	s, err := t.v.GetSelection()
-	if err != nil {
-		return err
-	}
-	s.SetMode(gtk.SELECTION_SINGLE)
-	_, err = s.Connect("changed", func(c *gtk.TreeSelection) {
-		m, i, ok := s.GetSelected()
+	_, err = t.s.Connect("changed", func(c *gtk.TreeSelection) {
+		m, i, ok := t.s.GetSelected()
 		if !ok {
 			return
 		}
@@ -131,6 +166,7 @@ func (t *TreeView) onChanged(changed FuncTwo) error {
 	return err
 }
 
+// Search ...
 func (t *TreeView) Search(q string) {
 	if t.TreeView() == nil {
 		return
@@ -141,9 +177,9 @@ func (t *TreeView) Search(q string) {
 		s   string
 		v   *glib.Value
 	)
-	i, ok := t.s.GetIterFirst()
+	i, ok := t.ls.GetIterFirst()
 	for ok {
-		v, err = t.s.GetValue(i, t.d.ColID())
+		v, err = t.ls.GetValue(i, t.d.ColID())
 		if err != nil {
 			return
 		}
@@ -158,21 +194,53 @@ func (t *TreeView) Search(q string) {
 			// The reference's column must contain the query string.
 			b = strings.Contains(strings.ToLower(s), strings.ToLower(q))
 		}
-		if err = t.s.SetValue(i, t.filtering, b); err != nil {
+		if err = t.ls.SetValue(i, t.col, b); err != nil {
 			return
 		}
-		ok = t.s.IterNext(i)
+		ok = t.ls.IterNext(i)
 	}
 }
 
 // AddRow ...
-func (t *TreeView) AddRow(d ...interface{}) (err error) {
+func (t *TreeView) AddRow(d []interface{}) error {
 	if t.TreeView() == nil {
 		return ErrUndObject
 	}
-	l := t.s.Append()
+	l := t.ls.Append()
+	if err := t.setRow(l, d); err != nil {
+		return err
+	}
+	t.pos[d[t.d.ColID()].(string)] = l
+
+	return nil
+}
+
+// DelRow ...
+func (t *TreeView) DelRow(name string) error {
+	if t.TreeView() == nil {
+		return ErrUndObject
+	}
+	if t.ls.Remove(t.pos[name]) {
+		delete(t.pos, name)
+	}
+	return nil
+}
+
+// UpdRow ...
+func (t *TreeView) UpdRow(name string, d []interface{}) (err error) {
+	if t.TreeView() == nil {
+		return ErrUndObject
+	}
+	l, ok := t.pos[name]
+	if !ok || len(d) != len(t.d.Cols()) {
+		return ErrUndColumn
+	}
+	return t.setRow(l, d)
+}
+
+func (t *TreeView) setRow(l *gtk.TreeIter, d []interface{}) (err error) {
 	for i := range t.d.Cols() {
-		if err = t.s.SetValue(l, i, d[i]); err != nil {
+		if err = t.ls.SetValue(l, i, d[i]); err != nil {
 			return
 		}
 	}
@@ -195,22 +263,4 @@ func (t *TreeView) ScrollTreeView(v, h bool) (*gtk.ScrolledWindow, error) {
 // TreeView ...
 func (t *TreeView) TreeView() *gtk.TreeView {
 	return t.v
-}
-
-// NewScrolledWindow
-func NewScrolledWindow(h, v bool) (*gtk.ScrolledWindow, error) {
-	s, err := gtk.ScrolledWindowNew(nil, nil)
-	if err != nil {
-		return nil, err
-	}
-	policy := func(need bool) gtk.PolicyType {
-		if need {
-			return gtk.POLICY_AUTOMATIC
-		}
-		return gtk.POLICY_NEVER
-	}
-	s.SetHExpand(h)
-	s.SetVExpand(v)
-	s.SetPolicy(policy(h), policy(v))
-	return s, nil
 }

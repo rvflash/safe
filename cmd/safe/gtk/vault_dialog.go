@@ -28,9 +28,9 @@ const (
 	vaultUsername = "vault_username"
 	vaultPwd      = "vault_password"
 	vaultURL      = "vault_url"
-	vaultNote     = "vault_note"
+	vaultNotes    = "vault_note"
 
-	// Kinds of password's vault
+	// Kinds of password'ls vault
 	vaultSelfGenerated = "vault_self_generated"
 	vaultCustomized    = "vault_customized"
 	vaultCustomizedBox = "vault_password_customized"
@@ -78,7 +78,9 @@ func (d *VaultDialog) Init() (err error) {
 		defer func() {
 			if err != nil {
 				d.Log("err=%q", err.Error())
-				d.Error(vaultError, err.Error())
+				if err = d.Error(vaultError, err.Error()); err != nil {
+					d.Log("fails to display the error: %s", err)
+				}
 			} else {
 				d.Log("submitted")
 				d.Hide()
@@ -99,10 +101,13 @@ func (d *VaultDialog) Init() (err error) {
 		}
 		if ok, _ = d.IsActivated(vaultCustomized); ok {
 			l.Password, err = d.customPassword()
+			d.Log("generating customized password")
 		} else if ok, _ = d.IsActivated(vaultHandwritten); ok {
 			l.Password, err = d.ReadEntry(vaultPwd)
+			d.Log("handwritten password")
 		} else {
 			l.Password, err = app.GeneratePassword(pwdLength, pwdDigits, pwdSymbols, pwdNoUppercase, pwdAllowRepeat)
+			d.Log("self generated password")
 		}
 		if err != nil {
 			return
@@ -111,7 +116,7 @@ func (d *VaultDialog) Init() (err error) {
 		if err != nil {
 			return
 		}
-		l.Note, err = d.ReadEntry(vaultNote)
+		l.Note, err = d.ReadEntry(vaultNotes)
 		if err != nil {
 			return
 		}
@@ -123,8 +128,8 @@ func (d *VaultDialog) Init() (err error) {
 			d.Log("try to create a vault named %q in %q", n, d.tag)
 			v, err = d.App().CreateVault(n, d.tag, l)
 		} else {
-			d.Log("try to update a vault named %q in %q", n, d.tag)
-			v, err = d.App().UpdateVault(n, d.tag, l)
+			d.Log("try to update a vault named %q in %q", n, d.v.Tag().Name())
+			v, err = d.App().UpdateVault(n, d.v.Tag().Name(), l)
 		}
 		if err != nil {
 			return
@@ -183,16 +188,21 @@ func (d *VaultDialog) showOptions(kind string) (err error) {
 }
 
 // Reload ...
-func (d *VaultDialog) Reload(tag string, vault ...string) (err error) {
+func (d *VaultDialog) Reload(tag string, vault ...string) {
 	if len(vault) != 1 {
 		// Creation
+		d.Log("creation in tag=%q", tag)
 		d.tag, d.v = tag, nil
 	} else {
 		// Update
+		d.Log("update of %q in tag=%q", vault[0], tag)
+
+		var err error
 		d.v, err = d.App().Vault(vault[0], tag)
+		if err != nil {
+			d.Log("fails with %q", err.Error())
+		}
 	}
-	d.Log("reloaded (tag=%q, vault=%v)", tag, vault)
-	return
 }
 
 // Reset ...
@@ -262,7 +272,7 @@ func (d *VaultDialog) Reset() (err error) {
 		return
 	}
 	// Note
-	err = d.WriteEntry(vaultNote, d.note())
+	err = d.WriteEntry(vaultNotes, d.note())
 	if err != nil {
 		return
 	}
@@ -285,7 +295,7 @@ func (d *VaultDialog) username() string {
 }
 
 func (d *VaultDialog) url() string {
-	if d.v == nil {
+	if d.v == nil || d.v.Login().URL == nil {
 		return ""
 	}
 	return d.v.Login().URL.String()

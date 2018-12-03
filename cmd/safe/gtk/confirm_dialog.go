@@ -36,26 +36,28 @@ func (d *ConfirmDialog) Init() (err error) {
 			d.Hide()
 		}()
 		if err = d.App().DeleteVault(d.vault, d.tag); err != nil {
+			d.Log("Rv: t:%q v:%q", d.vault, d.tag)
 			return
 		}
-		err = d.Parent().DeleteVault(d.vault, d.tag)
+		err = d.Parent().DeleteVault(d.tag, d.vault)
 	})
 }
 
 // Reload ...
-func (d *ConfirmDialog) Reload(tag string, vault ...string) error {
+func (d *ConfirmDialog) Reload(tag string, vault ...string) {
 	if len(vault) != 1 {
-		return d.Reload("", "")
+		d.tag, d.vault = "", ""
+	} else {
+		d.tag, d.vault = tag, vault[0]
 	}
-	d.tag, d.vault = tag, vault[0]
-	d.Log("reloaded (tag=%q, vault=%q)", tag, vault[0])
-	return nil
+	d.Log("reloaded (tag=%q, vault=%q)", d.tag, d.vault)
 }
 
 // Reset ...
 func (d *ConfirmDialog) Reset() error {
 	d.Log("reset")
-	return d.Reload("", "")
+	d.tag, d.vault = "", ""
+	return nil
 }
 
 // Log implements the Plugin interface.
