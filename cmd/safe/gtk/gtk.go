@@ -125,12 +125,6 @@ func (c *Clipboard) Copy(text string) {
 	_ = gtk.MainIterationDo(true)
 }
 
-// MenuButton ...
-type MenuButton struct {
-	b *gtk.MenuButton
-	m *gtk.Menu
-}
-
 // NewHBox ...
 func NewHBox() (*gtk.Box, error) {
 	return gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, defaultMargin)
