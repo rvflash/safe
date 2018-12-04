@@ -10,9 +10,7 @@ Safe is a tool to store all yours passwords in a local encrypted storage.
 The owner uses a passphrase to sign in (sha256 hash).
 This passphrase combined with a salt given on the application's launching is used to generate a HMAC hash.
 This hash will be used to sign all the data with AES encryption.
-
 ![Application GTK3](https://raw.githubusercontent.com/rvflash/safe/master/doc/app.png)
-
 
 ## Installation
 
@@ -36,6 +34,6 @@ $ ./safe -salt="whatever-you-want-as-salt"
 
 - [x] Local storage using boltDB.
 - [x] ~~Web view based on local version of Bootstrap v4.1.3 (only CSS) and Vue.js v2.5.17.~~
-- [x] Migrate the Vue.js application to a Qt GUI in order to not use a web browser (avoids HTTP, unsafe extension, etc.).
+- [x] Migrate the Vue.js application to a GTK+3 GUI in order to not use a web browser (avoids HTTP, unsafe extension, etc.).
 - [ ] Historic of password's modifications.
 - [ ] Notification center with alerts on outdated or low strength password.
