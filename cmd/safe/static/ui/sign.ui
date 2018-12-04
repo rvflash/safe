@@ -198,21 +198,38 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="sign_error">
+              <object class="GtkInfoBar" id="sign_error_bar">
+                <property name="visible">False</property>
                 <property name="can_focus">False</property>
-                <property name="halign">start</property>
-                <property name="margin_top">10</property>
-                <property name="margin_bottom">10</property>
-                <attributes>
-                  <attribute name="font-desc" value="Helvetica 13"/>
-                  <attribute name="foreground" value="#cccc00000000"/>
-                </attributes>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">5</property>
-              </packing>
+                <property name="message_type">error</property>
+                <child internal-child="content_area">
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <child>
+                      <object class="GtkLabel" id="sign_error">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">label</property>
+                         <attributes>
+                           <attribute name="font-desc" value="Helvetica 12"/>
+                         </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+               </object>
             </child>
           </object>
           <packing>

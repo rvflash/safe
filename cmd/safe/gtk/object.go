@@ -47,17 +47,22 @@ func (o *Object) IObject() glib.IObject {
 
 // Error ...
 func (o *Object) Error(id, msg string) (err error) {
-	d, err := o.ID(id)
+	d, err := o.ID(id + "_bar")
 	if err != nil {
 		return
 	}
-	l := d.(*gtk.Label)
+	m := d.(*gtk.InfoBar)
 	if msg == "" {
-		l.Hide()
-	} else {
-		l.SetLabel(msg)
-		l.Show()
+		m.Hide()
+		return
 	}
+	l, err := o.ID(id)
+	if err != nil {
+		return
+	}
+	l.(*gtk.Label).SetLabel(msg)
+	m.Show()
+
 	return
 }
 
