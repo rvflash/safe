@@ -29,7 +29,10 @@ func (d *TagDialog) Init() (err error) {
 
 	// Creation.
 	return d.ButtonClicked(tagSubmit, func() {
-		var err error
+		var (
+			n   string
+			err error
+		)
 		defer func() {
 			if err != nil {
 				d.Log("err=%q", err.Error())
@@ -41,11 +44,11 @@ func (d *TagDialog) Init() (err error) {
 				d.Hide()
 			}
 		}()
-		s, err := d.ReadEntry(tagName)
+		n, err = d.ReadEntry(tagName)
 		if err != nil {
 			return
 		}
-		_, err = d.App().CreateTag(s)
+		_, err = d.App().CreateTag(n)
 		if err != nil {
 			return
 		}
@@ -55,8 +58,9 @@ func (d *TagDialog) Init() (err error) {
 				return
 			}
 			d.Parent().Show()
+		} else {
+			err = d.Parent().AddTag(n)
 		}
-		err = d.Parent().AddTag(s)
 	})
 }
 

@@ -116,7 +116,7 @@ func (o *Object) ReadSpinButton(id string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return int(d.(*gtk.SpinButton).GetValue()), nil
+	return d.(*gtk.SpinButton).GetValueAsInt(), nil
 }
 
 // WriteSpinButton ...

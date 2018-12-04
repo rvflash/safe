@@ -183,7 +183,7 @@ func (w *Window) UpsertVault(v *safe.Vault, add bool) error {
 	if add {
 		return n.Add(v)
 	}
-	return n.Update(v)
+	return n.Update(v, w.ShowUpdVaultDialog, w.ShowDelVaultConfirm, w.cb.Copy)
 }
 
 // Close ...
@@ -236,10 +236,6 @@ func (w *Window) ShowUpdVaultDialog(tag, vault string) {
 }
 
 func (w *Window) reloadDialog(d LoadVisibleWidgetContainer, args ...string) {
-	if err := d.Reset(); err != nil {
-		d.Log("fails to display, err=%q", err.Error())
-		return
-	}
 	switch len(args) {
 	case 1:
 		// tag name
@@ -248,8 +244,7 @@ func (w *Window) reloadDialog(d LoadVisibleWidgetContainer, args ...string) {
 		//tag name + vault name
 		d.Reload(args[0], args[1])
 	}
-	d.Show()
-	d.Log("displayed")
+	w.showDialog(d)
 }
 
 func (w *Window) showDialog(d VisibleWidgetContainer) {

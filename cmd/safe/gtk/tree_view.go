@@ -166,6 +166,11 @@ func (t *TreeView) onChanged(changed FuncTwo) error {
 	return err
 }
 
+// Len ...
+func (t *TreeView) Len() int {
+	return len(t.pos)
+}
+
 // Search ...
 func (t *TreeView) Search(q string) {
 	if t.TreeView() == nil {
@@ -220,14 +225,13 @@ func (t *TreeView) DelRow(name string) error {
 	if t.TreeView() == nil {
 		return ErrUndObject
 	}
-	if t.ls.Remove(t.pos[name]) {
-		delete(t.pos, name)
-	}
+	_ = t.ls.Remove(t.pos[name])
+	delete(t.pos, name)
 	return nil
 }
 
 // UpdRow ...
-func (t *TreeView) UpdRow(name string, d []interface{}) (err error) {
+func (t *TreeView) UpdRow(name string, d []interface{}) error {
 	if t.TreeView() == nil {
 		return ErrUndObject
 	}

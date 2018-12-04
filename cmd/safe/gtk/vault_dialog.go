@@ -12,7 +12,7 @@ import (
 
 // Password default options
 const (
-	pwdLength      = 64
+	pwdLength      = 32
 	pwdDigits      = 10
 	pwdSymbols     = 10
 	pwdNoUppercase = false
@@ -65,16 +65,30 @@ func (d *VaultDialog) Init() (err error) {
 	err = d.ButtonClicked(vaultSelfGenerated, func() {
 		_ = d.showOptions("")
 	})
+	if err != nil {
+		return
+	}
 	err = d.ButtonClicked(vaultCustomized, func() {
 		_ = d.showOptions(vaultCustomizedBox)
 	})
+	if err != nil {
+		return
+	}
 	err = d.ButtonClicked(vaultHandwritten, func() {
 		_ = d.showOptions(vaultPwd)
 	})
+	if err != nil {
+		return
+	}
 
 	// Submit
 	return d.ButtonClicked(vaultSubmit, func() {
-		var err error
+		var (
+			n   string
+			l   app.Login
+			err error
+			ok  bool
+		)
 		defer func() {
 			if err != nil {
 				d.Log("err=%q", err.Error())
@@ -87,14 +101,10 @@ func (d *VaultDialog) Init() (err error) {
 			}
 		}()
 
-		n, err := d.ReadEntry(vaultName)
+		n, err = d.ReadEntry(vaultName)
 		if err != nil {
 			return
 		}
-		var (
-			l  app.Login
-			ok bool
-		)
 		l.Username, err = d.ReadEntry(vaultUsername)
 		if err != nil {
 			return
@@ -195,7 +205,7 @@ func (d *VaultDialog) Reload(tag string, vault ...string) {
 		d.tag, d.v = tag, nil
 	} else {
 		// Update
-		d.Log("update of %q in tag=%q", vault[0], tag)
+		d.Log("updating %q in tag=%q", vault[0], tag)
 
 		var err error
 		d.v, err = d.App().Vault(vault[0], tag)

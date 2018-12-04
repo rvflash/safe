@@ -143,7 +143,7 @@ func (v *vaultInfo) properties() (*gtk.Box, error) {
 
 	// tagNote
 	if note := v.d.Login().Note; note != "" {
-		if err = v.packField(vb, "tagNote:", note, nil); err != nil {
+		if err = v.packField(vb, "Note:", note, nil); err != nil {
 			return nil, err
 		}
 	}

@@ -11,26 +11,31 @@ The owner uses a passphrase to sign in (sha256 hash).
 This passphrase combined with a salt given on the application's launching is used to generate a HMAC hash.
 This hash will be used to sign all the data with AES encryption.
 
-![Web view](https://raw.githubusercontent.com/rvflash/safe/master/doc/webview.jpeg)
+![Application GTK3](https://raw.githubusercontent.com/rvflash/safe/master/doc/app.png)
 
 
 ## Installation
 
-Safe uses the Go Modules coming from the 1.11 version of the language.
+Safe uses the Go Modules coming from the 1.11 version of the language and GTK+3 as GUI.
+
+Since the version 0.2.0, Safe is not anymore a web application but a application powered by GTK+3.
+Thanks to the [gotk3](https://github.com/gotk3/gotk3)'s project for the bindings.
+
+See the [installation instructions](https://github.com/gotk3/gotk3/wiki#installation) regarding our OS before going to the next step.
+
+Finally, build and launch it:
 
 ```bash
 $ git clone https://github.com/rvflash/safe.git
-$ cd safe/cmd/ui
-$ GO111MODULE=on go build -o safe
+$ cd safe/cmd/safe
+$ GO111MODULE=on go build
 $ ./safe -salt="whatever-you-want-as-salt"
 ```
-The web server starts on `http://localhost:7233/` by default. Opens it in private mode in your favorite browser. 
-
 
 ### Features
 
 - [x] Local storage using boltDB.
-- [x] Web view based on local version of Bootstrap v4.1.3 (only CSS) and Vue.js v2.5.17.
-- [ ] Migrate the Vue.js application to a Qt GUI in order to not use a web browser (avoids HTTP, unsafe extension, etc.).
+- [x] ~~Web view based on local version of Bootstrap v4.1.3 (only CSS) and Vue.js v2.5.17.~~
+- [x] Migrate the Vue.js application to a Qt GUI in order to not use a web browser (avoids HTTP, unsafe extension, etc.).
 - [ ] Historic of password's modifications.
 - [ ] Notification center with alerts on outdated or low strength password.

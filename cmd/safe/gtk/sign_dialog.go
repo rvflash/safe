@@ -7,6 +7,8 @@ package gtk
 import (
 	"errors"
 
+	"github.com/rvflash/safe"
+
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/rvflash/safe/app"
 )
@@ -37,7 +39,10 @@ func (d *SignDialog) Init() (err error) {
 	}
 	// Registration.
 	return d.ButtonClicked(signSubmit, func() {
-		var err error
+		var (
+			err   error
+			p, cp string
+		)
 		defer func() {
 			if err != nil {
 				d.Log("err=%q", err.Error())
@@ -49,17 +54,15 @@ func (d *SignDialog) Init() (err error) {
 				d.Hide()
 			}
 		}()
-		p, err := d.ReadEntry(signPassphrase)
-		if err != nil {
+		if p, err = d.ReadEntry(signPassphrase); err != nil {
 			return
 		}
 		if d.App().Logged() == app.ErrNotFound {
 			// Sign up behavior.
-			pc, err := d.ReadEntry(signConfirmPassphrase)
-			if err != nil {
+			if cp, err = d.ReadEntry(signConfirmPassphrase); err != nil {
 				return
 			}
-			if p != pc {
+			if p != cp {
 				err = errors.New("the confirm passphrase does not match the expected one")
 				return
 			}
@@ -67,11 +70,15 @@ func (d *SignDialog) Init() (err error) {
 		if err = d.App().Login(p); err != nil {
 			return
 		}
-		l, err := d.App().ListTagByNames()
+
+		// What's next?
+		var l []*safe.Tag
+		l, err = d.App().ListTagByNames()
 		if err != nil {
 			return
 		}
 		if len(l) == 0 {
+			// New be!
 			d.Parent().ShowTagDialog()
 			return
 		}

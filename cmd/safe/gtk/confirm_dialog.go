@@ -32,7 +32,7 @@ func (d *ConfirmDialog) Init() (err error) {
 			if err != nil {
 				d.Log("err=%q", err.Error())
 			}
-			d.Log("confirmed")
+			d.Log("removed")
 			d.Hide()
 		}()
 		if err = d.App().DeleteVault(d.vault, d.tag); err != nil {
@@ -55,8 +55,6 @@ func (d *ConfirmDialog) Reload(tag string, vault ...string) {
 
 // Reset ...
 func (d *ConfirmDialog) Reset() error {
-	d.Log("reset")
-	d.tag, d.vault = "", ""
 	return nil
 }
 
