@@ -12,7 +12,7 @@ env:
 sudo: required
 
 install:
-  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin v1.9.1
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin v1.12.3
   - go mod vendor
   - docker pull golang:1.11
   - echo '#!/bin/sh -e' > build.sh
