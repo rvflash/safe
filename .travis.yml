@@ -26,7 +26,7 @@ before_install:
 install: true
 
 script:
-  - go test -tags "gtk_${GTK_VERSION}" -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+  - go test -tags gtk_${GTK_VERSION} -v -race -coverprofile=coverage.txt -covermode=atomic ./...
   - golangci-lint run
 
 after_success:
