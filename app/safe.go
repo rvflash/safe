@@ -83,14 +83,17 @@ func New(db safe.Service, salt, root string, session Session) *Safe {
 		db:   db,
 		root: Dir(root),
 		salt: salt,
-		tick: time.NewTicker(session.Tick()),
 	}
 	// Manages the session lifetime.
-	go func() {
-		for range s.tick.C {
-			s.session(session.Lifetime())
-		}
-	}()
+	if session != nil {
+		s.tick = time.NewTicker(session.Tick())
+
+		go func() {
+			for range s.tick.C {
+				s.session(session.Lifetime())
+			}
+		}()
+	}
 	return s
 }
 
