@@ -23,7 +23,7 @@ install:
   - chmod +x build.sh
 
 script:
-  - docker run --rm -v "$GOPATH":/go -w /go/src/github.com/rvflash/safe golang:1.11-alpine3.7 ./build.sh
+  - docker run --rm -v "$GOPATH":/go -w /go/src/github.com/rvflash/safe golang:1.11 ./build.sh
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
