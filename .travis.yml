@@ -3,31 +3,24 @@ language: go
 go:
   - 1.11
 
+services:
+  - docker
+
 sudo: required
 
-dist: trusty
-
-env:
-  - GOARCH=amd64
-
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y xvfb gtk+3.0 libgtk-3-dev libcairo2-dev libglib2.0-dev
-  - "export DISPLAY=:99.0"
-  - sudo /usr/bin/Xvfb $DISPLAY 2>1 > /dev/null &
-  - "export GTK_VERSION=$(pkg-config --modversion gtk+-3.0 | tr . _| cut -d '_' -f 1-2)"
-  - "export Glib_VERSION=$(pkg-config --modversion glib-2.0)"
-  - "export Cairo_VERSION=$(pkg-config --modversion cairo)"
-  - "export Pango_VERSION=$(pkg-config --modversion pango)"
-  - echo "GTK version ${GTK_VERSION} (Glib ${Glib_VERSION}, Cairo ${Cairo_VERSION}, Pango ${Pango_VERSION})"
-  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin v1.12.3
-  - "export GO111MODULE=on"
-
-install: true
+install:
+  - go mod vendor
+  - docker pull golang:1.11-alpine3.7
+  - echo '#!/bin/sh -e' > build.sh
+  - echo 'apt-get update' >> build.sh
+  - echo 'apt-get install -y build-essential libgtk-3-dev libcairo2-dev libglib2.0-dev' >> build.sh
+  - echo 'go test -v -race -coverprofile=coverage.txt -covermode=atomic $(go list ./... | grep -v "/vendor/")' >> build.sh
+  - echo 'curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin v1.12.3' >> build.sh
+  - echo 'golangci-lint run' >> build.sh
+  - chmod +x build.sh
 
 script:
-  - go test -tags gtk_${GTK_VERSION} -v -race -coverprofile=coverage.txt -covermode=atomic ./...
-  - golangci-lint run
+  - docker run --rm -v "$GOPATH":/go -w /go/src/github.com/rvflash/safe golang:1.11-alpine3.7 ./build.sh
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
