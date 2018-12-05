@@ -128,7 +128,7 @@ func NewVault(hash crypto.Hash, name string, tag *Tag, login *Login) *Vault {
 	}}
 }
 
-// CreationDate returns the creation date of the Vault.
+// AddDate returns the creation date of the Vault.
 func (v *Vault) AddDate() time.Time {
 	return v.v.AddDate.time
 }
@@ -253,7 +253,7 @@ func (t *Tag) Key() []byte {
 	return []byte(t.name + tagSep)
 }
 
-// MarshalJSON implements tje json.Marshaler interface.
+// MarshalJSON implements the json.Marshaler interface.
 func (t *Tag) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.name)
 }
@@ -263,7 +263,7 @@ func (t *Tag) Name() string {
 	return t.name
 }
 
-// UnmarshalJSON implements tje json.Unmarshaler interface.
+// UnmarshalJSON implements the json.Unmarshaler interface.
 func (t *Tag) UnmarshalJSON(b []byte) (err error) {
 	return json.Unmarshal(b, &t.name)
 }
