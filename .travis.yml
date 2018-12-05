@@ -7,7 +7,6 @@ sudo: required
 dist: trusty
 
 env:
-  - GOARCH=amd64
   - GO111MODULE=on
 
 before_install:
@@ -23,7 +22,8 @@ before_install:
   - echo "GTK version ${GTK_VERSION} (Glib ${Glib_VERSION}, Cairo ${Cairo_VERSION}, Pango ${Pango_VERSION})"
   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b $GOPATH/bin v1.12.3
 
-install: true
+install:
+  - go get -t -tags "gtk_${GTK_VERSION}" github.com/gotk3/gotk3
 
 script:
   - go mod vendor
