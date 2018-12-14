@@ -41,7 +41,7 @@ func Init(args *[]string, db *app.Safe, log Logger, debug bool) (*Application, e
 		return nil, err
 	}
 	a := &Application{
-		fs:  static.FS(!debug),
+		fs:  static.FS(debug),
 		win: w,
 	}
 
