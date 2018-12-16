@@ -18,10 +18,8 @@ func NewWindow(app *app.Safe, log Logger, title string, width, height int) (*Win
 	w.SetTitle(title)
 	w.SetResizable(true)
 	w.SetPosition(gtk.WIN_POS_CENTER)
-	//w.SetDefaultSize(width, height)
-	//w.SetFocusVisible(true)
 	w.SetSizeRequest(width, height)
-	//w.SetTypeHint(gdk.WINDOW_TYPE_HINT_NORMAL)
+	w.SetIconName("dialog-password")
 
 	// Main windows, destroys on closing.
 	if _, err = w.Connect("destroy", gtk.MainQuit); err != nil {

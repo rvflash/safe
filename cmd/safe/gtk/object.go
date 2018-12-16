@@ -45,6 +45,19 @@ func (o *Object) IObject() glib.IObject {
 	return o.main
 }
 
+// Closed ...
+func (o *Object) Closed(fn func()) (err error) {
+	d := o.main.(*gtk.Dialog)
+	_, err = d.Connect("response", fn)
+	if err != nil {
+		return
+	}
+	_, err = d.Connect("delete-event", func() bool {
+		return true
+	})
+	return
+}
+
 // Error ...
 func (o *Object) Error(id, msg string) (err error) {
 	d, err := o.ID(id + "_bar")
@@ -74,19 +87,43 @@ func (o *Object) ID(name string) (glib.IObject, error) {
 	return o.b.GetObject(name)
 }
 
-// ButtonClicked implements the Container interface.
+// ButtonClicked ...
 func (o *Object) ButtonClicked(id string, fn Func) (err error) {
+	return o.connect("clicked", id, fn)
+}
+
+// EnterPressed ...
+func (o *Object) EnterPressed(id string, fn Func) error {
+	return o.connect("activate", id, fn)
+}
+
+func (o *Object) connect(signal string, id string, fn Func) (err error) {
 	e, err := o.ID(id)
 	if err != nil {
 		return
 	}
 	switch b := e.(type) {
 	case *gtk.Button:
-		_, err = b.Connect("clicked", fn)
+		_, err = b.Connect(signal, fn)
 	case *gtk.RadioButton:
-		_, err = b.Connect("clicked", fn)
+		_, err = b.Connect(signal, fn)
+	case *gtk.Entry:
+		_, err = b.Connect(signal, fn)
 	default:
 		err = ErrContainer
+	}
+	return
+}
+
+// Focus ...
+func (o *Object) Focus(id string)  (err error) {
+	e, err := o.ID(id)
+	if err != nil {
+		return
+	}
+	switch b := e.(type) {
+	case *gtk.Entry:
+		b.GrabFocus()
 	}
 	return
 }

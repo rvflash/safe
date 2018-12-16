@@ -53,14 +53,13 @@ type VaultDialog struct {
 
 func (d *VaultDialog) Init() (err error) {
 	// Cancellation.
-	err = d.ButtonClicked(vaultCancel, func() {
-		d.Log("cancelled")
-		d.Hide()
-	})
-	if err != nil {
+	if err = d.Closed(d.Hide); err != nil {
 		return
 	}
-
+	if err = d.ButtonClicked(vaultCancel, d.Hide); err != nil {
+		return
+	}
+	
 	// Options
 	err = d.ButtonClicked(vaultSelfGenerated, func() {
 		_ = d.showOptions("")
