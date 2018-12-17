@@ -81,6 +81,9 @@ func (d *TagDialog) Reset() (err error) {
 	if err = d.WriteEntry(tagName, ""); err != nil {
 		return
 	}
+	if err = d.Focus(tagName); err != nil {
+		return
+	}
 	// Error message
 	return d.Error(tagError, "")
 }

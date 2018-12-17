@@ -128,23 +128,42 @@ func (o *Object) Focus(id string)  (err error) {
 	return
 }
 
+// EditEntry ...
+func (o *Object) EditEntry(id, text string, ok bool) (err error) {
+	d, err := o.entry(id)
+	if err != nil {
+		return
+	}
+	d.SetText(text)
+	d.SetEditable(ok)
+	return
+}
+
 // ReadEntry ...
 func (o *Object) ReadEntry(id string) (string, error) {
-	d, err := o.ID(id)
+	d, err := o.entry(id)
 	if err != nil {
 		return "", err
 	}
-	return d.(*gtk.Entry).GetText()
+	return d.GetText()
 }
 
 // WriteEntry ...
-func (o *Object) WriteEntry(id, text string) error {
+func (o *Object) WriteEntry(id, text string) (err error) {
+	d, err := o.entry(id)
+	if err != nil {
+		return
+	}
+	d.SetText(text)
+	return
+}
+
+func (o *Object) entry(id string) (*gtk.Entry, error) {
 	d, err := o.ID(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	d.(*gtk.Entry).SetText(text)
-	return nil
+	return d.(*gtk.Entry), nil
 }
 
 // ReadSpinButton ...

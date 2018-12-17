@@ -223,14 +223,20 @@ func (d *VaultDialog) Reset() (err error) {
 			d.Log("reset")
 		}
 	}()
-	// Input fields
-	n, err := d.ID(vaultName)
+	editable := d.v == nil
+	if editable {
+		err = d.Focus(vaultName)
+	} else {
+		err = d.Focus(vaultUsername)
+	}
 	if err != nil {
 		return
 	}
-	n.(*gtk.Entry).SetEditable(d.v == nil)
-	n.(*gtk.Entry).SetText(d.name())
-
+	// Vault name
+	err = d.EditEntry(vaultName, d.name(), editable)
+	if err != nil {
+		return
+	}
 	// Username
 	err = d.WriteEntry(vaultUsername, d.username())
 	if err != nil {

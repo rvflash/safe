@@ -257,7 +257,6 @@ func (w *Window) showDialog(d VisibleWidgetContainer) {
 // ShowAll implements the Visibility interface.
 func (w *Window) Run() {
 	if c := w.Window(); c != nil {
-		c.ShowAll()
 		w.showDialog(w.sign)
 	}
 	w.Log("win: running")

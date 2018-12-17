@@ -31,11 +31,6 @@ func (d *SignDialog) Init() (err error) {
 		return
 	}
 	// Registration.
-	/*
-	if err = d.Focus(signPassphrase); err != nil {
-		return
-	}
-	*/
 	if err = d.EnterPressed(signPassphrase, d.login); err != nil {
 		return
 	}
@@ -101,6 +96,7 @@ func (d *SignDialog) Reset() (err error) {
 			d.Log("reset")
 		}
 	}()
+
 	// Input fields
 	if err = d.WriteEntry(signPassphrase, ""); err != nil {
 		return
