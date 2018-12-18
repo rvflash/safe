@@ -20,21 +20,20 @@
   <object class="GtkDialog" id="vault">
     <property name="can_focus">False</property>
     <property name="hexpand">True</property>
-    <property name="type">popup</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
-    <property name="default_width">500</property>
+    <property name="default_width">540</property>
     <property name="default_height">440</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
-    <property name="has_resize_grip">True</property>
+    <property name="deletable">False</property>
     <child>
       <placeholder/>
     </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
-        <property name="margin_left">10</property>
+        <property name="margin_left">20</property>
         <property name="margin_right">10</property>
         <property name="margin_top">10</property>
         <property name="margin_bottom">10</property>
@@ -97,11 +96,8 @@
                   <object class="GtkAccelLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="halign">start</property>
+                    <property name="halign">end</property>
                     <property name="label" translatable="yes">Vault name</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Helvetica 13"/>
-                    </attributes>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -125,11 +121,8 @@
                   <object class="GtkAccelLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="halign">start</property>
+                    <property name="halign">end</property>
                     <property name="label" translatable="yes">Username</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Helvetica 13"/>
-                    </attributes>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -151,13 +144,9 @@
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="halign">start</property>
+                    <property name="halign">end</property>
                     <property name="valign">start</property>
-                    <property name="margin_top">10</property>
                     <property name="label" translatable="yes">Password</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Helvetica 13"/>
-                    </attributes>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -168,11 +157,8 @@
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="halign">start</property>
+                    <property name="halign">end</property>
                     <property name="label" translatable="yes">URL</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Helvetica 13"/>
-                    </attributes>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -195,11 +181,8 @@
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="halign">start</property>
+                    <property name="halign">end</property>
                     <property name="label" translatable="yes">Note</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Helvetica 13"/>
-                    </attributes>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -310,9 +293,6 @@
                             <property name="can_focus">False</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Length</property>
-                            <attributes>
-                              <attribute name="font-desc" value="Helvetica 13"/>
-                            </attributes>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -325,9 +305,6 @@
                             <property name="can_focus">False</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Number of digits</property>
-                            <attributes>
-                              <attribute name="font-desc" value="Helvetica 13"/>
-                            </attributes>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -340,9 +317,6 @@
                             <property name="can_focus">False</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Number of symbols</property>
-                            <attributes>
-                              <attribute name="font-desc" value="Helvetica 13"/>
-                            </attributes>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -470,38 +444,49 @@
             </child>
             <child>
               <object class="GtkInfoBar" id="vault_error_bar">
-              <property name="visible">False</property>
-              <property name="can_focus">False</property>
-              <property name="message_type">error</property>
-              <property name="margin_top">10</property>
-              <child internal-child="content_area">
-                <object class="GtkBox">
-                  <property name="visible">True</property>
-                  <property name="can_focus">False</property>
-                  <property name="halign">start</property>
-                  <child>
-                    <object class="GtkLabel" id="vault_error">
-                      <property name="visible">True</property>
-                      <property name="can_focus">False</property>
-                      <property name="label" translatable="yes">label</property>
-                       <attributes>
-                         <attribute name="font-desc" value="Helvetica 12"/>
-                       </attributes>
-                    </object>
-                    <packing>
-                      <property name="expand">True</property>
-                      <property name="fill">True</property>
-                      <property name="position">0</property>
-                    </packing>
-                  </child>
-                </object>
-                <packing>
-                  <property name="expand">True</property>
-                  <property name="fill">True</property>
-                  <property name="position">2</property>
-                </packing>
-              </child>
+                <property name="can_focus">False</property>
+                <property name="margin_top">10</property>
+                <property name="message_type">error</property>
+                <child internal-child="action_area">
+                  <object class="GtkButtonBox">
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child internal-child="content_area">
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <child>
+                      <object class="GtkLabel" id="vault_error">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">label</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
               </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
             </child>
           </object>
           <packing>
