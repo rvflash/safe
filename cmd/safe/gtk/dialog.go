@@ -27,9 +27,6 @@ func NewDialog(parent *Window, id, xml string) (*Dialog, error) {
 	}
 	w := o.IObject().(*gtk.Dialog)
 	w.SetTransientFor(parent.Window())
-	//w.SetPosition(gtk.WIN_POS_CENTER_ON_PARENT)
-	//w.SetModal(true)
-	//w.SetFocusVisible(true)
 
 	return &Dialog{Object: o, p: parent, d: w}, nil
 }

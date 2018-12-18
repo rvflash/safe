@@ -1,3 +1,4 @@
 *.db
 cmd/ui/ui
 cmd/safe/safe
+.idea

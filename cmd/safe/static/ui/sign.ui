@@ -4,13 +4,10 @@
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkDialog" id="sign">
     <property name="can_focus">False</property>
-    <property name="type">popup</property>
     <property name="resizable">False</property>
-    <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
-    <property name="deletable">False</property>
     <child>
       <placeholder/>
     </child>
@@ -28,23 +25,11 @@
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="sign_cancel">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkButton" id="sign_submit">
                 <property name="label" translatable="yes">Submit</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -94,9 +79,6 @@
                 <property name="halign">start</property>
                 <property name="margin_bottom">10</property>
                 <property name="label" translatable="yes">Passphrase:</property>
-                <attributes>
-                  <attribute name="font-desc" value="Helvetica 13"/>
-                </attributes>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -109,6 +91,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="has_focus">True</property>
+                <property name="is_focus">True</property>
                 <property name="visibility">False</property>
                 <property name="invisible_char">*</property>
                 <property name="placeholder_text" translatable="yes">One password to rule them all</property>
@@ -125,11 +108,8 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="margin_top">10</property>
-                <property name="margin_bottom">20</property>
+                <property name="margin_bottom">30</property>
                 <property name="label" translatable="yes">A good passphrase should have at least 16 characters and be difficult to guess (digits, symbols, etc.).</property>
-                <attributes>
-                  <attribute name="font-desc" value="Helvetica 12"/>
-                </attributes>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -149,9 +129,6 @@
                     <property name="halign">start</property>
                     <property name="margin_bottom">10</property>
                     <property name="label" translatable="yes">Confirm passphrase:</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Helvetica 13"/>
-                    </attributes>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -180,9 +157,6 @@
                     <property name="halign">start</property>
                     <property name="margin_top">10</property>
                     <property name="label" translatable="yes">Re-type the passphrase to confirm your choice.</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Helvetica 12"/>
-                    </attributes>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -199,9 +173,18 @@
             </child>
             <child>
               <object class="GtkInfoBar" id="sign_error_bar">
-                <property name="visible">False</property>
                 <property name="can_focus">False</property>
                 <property name="message_type">error</property>
+                <child internal-child="action_area">
+                  <object class="GtkButtonBox">
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
                 <child internal-child="content_area">
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -212,9 +195,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">label</property>
-                         <attributes>
-                           <attribute name="font-desc" value="Helvetica 12"/>
-                         </attributes>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -229,7 +209,12 @@
                     <property name="position">5</property>
                   </packing>
                 </child>
-               </object>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
             </child>
           </object>
           <packing>

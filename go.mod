@@ -8,6 +8,7 @@ require (
 	github.com/golang/protobuf v1.2.0 // indirect
 	github.com/gotk3/gotk3 v0.0.0-20181125224807-4154577b870f
 	github.com/mattn/go-isatty v0.0.4 // indirect
+	github.com/mjibson/esc v0.1.0 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
 	github.com/rvflash/elapsed v0.1.2
 	github.com/sethvargo/go-password v0.1.1

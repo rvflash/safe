@@ -18,10 +18,8 @@ func NewWindow(app *app.Safe, log Logger, title string, width, height int) (*Win
 	w.SetTitle(title)
 	w.SetResizable(true)
 	w.SetPosition(gtk.WIN_POS_CENTER)
-	//w.SetDefaultSize(width, height)
-	//w.SetFocusVisible(true)
 	w.SetSizeRequest(width, height)
-	//w.SetTypeHint(gdk.WINDOW_TYPE_HINT_NORMAL)
+	w.SetIconName("dialog-password")
 
 	// Main windows, destroys on closing.
 	if _, err = w.Connect("destroy", gtk.MainQuit); err != nil {
@@ -259,7 +257,6 @@ func (w *Window) showDialog(d VisibleWidgetContainer) {
 // ShowAll implements the Visibility interface.
 func (w *Window) Run() {
 	if c := w.Window(); c != nil {
-		c.ShowAll()
 		w.showDialog(w.sign)
 	}
 	w.Log("win: running")

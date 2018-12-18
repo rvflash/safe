@@ -6,15 +6,12 @@ package gtk
 
 import (
 	"errors"
-
-	"github.com/rvflash/safe"
-
 	"github.com/gotk3/gotk3/gtk"
+	"github.com/rvflash/safe"
 	"github.com/rvflash/safe/app"
 )
 
 const (
-	signCancel            = "sign_cancel"
 	signConfirmBox        = "sign_confirm_passphrase"
 	signConfirmPassphrase = "confirm_passphrase"
 	signError             = "sign_error"
@@ -30,63 +27,64 @@ type SignDialog struct {
 // Init ...
 func (d *SignDialog) Init() (err error) {
 	// Cancellation.
-	err = d.ButtonClicked(signCancel, func() {
-		d.Log("cancelled")
-		gtk.MainQuit()
-	})
-	if err != nil {
+	if err = d.Closed(gtk.MainQuit); err != nil {
 		return
 	}
 	// Registration.
-	return d.ButtonClicked(signSubmit, func() {
-		var (
-			err   error
-			p, cp string
-		)
-		defer func() {
-			if err != nil {
-				d.Log("err=%q", err.Error())
-				if err = d.Error(signError, err.Error()); err != nil {
-					d.Log("fails to display the error: %s", err)
-				}
-			} else {
-				d.Log("logged")
-				d.Hide()
-			}
-		}()
-		if p, err = d.ReadEntry(signPassphrase); err != nil {
-			return
-		}
-		if d.App().Logged() == app.ErrNotFound {
-			// Sign up behavior.
-			if cp, err = d.ReadEntry(signConfirmPassphrase); err != nil {
-				return
-			}
-			if p != cp {
-				err = errors.New("the confirm passphrase does not match the expected one")
-				return
-			}
-		}
-		if err = d.App().Login(p); err != nil {
-			return
-		}
+	if err = d.EnterPressed(signPassphrase, d.login); err != nil {
+		return
+	}
+	return d.ButtonClicked(signSubmit, d.login)
+}
 
-		// What's next?
-		var l []*safe.Tag
-		l, err = d.App().ListTagByNames()
+func (d *SignDialog) login() {
+	var (
+		err   error
+		p, cp string
+	)
+	defer func() {
 		if err != nil {
+			d.Log("err=%q", err.Error())
+			if err = d.Error(signError, err.Error()); err != nil {
+				d.Log("fails to display the error: %s", err)
+			}
+		} else {
+			d.Log("logged")
+			d.Hide()
+		}
+	}()
+	if p, err = d.ReadEntry(signPassphrase); err != nil {
+		return
+	}
+	if d.App().Logged() == app.ErrNotFound {
+		// Sign up behavior.
+		if cp, err = d.ReadEntry(signConfirmPassphrase); err != nil {
 			return
 		}
-		if len(l) == 0 {
-			// New be!
-			d.Parent().ShowTagDialog()
+		if p != cp {
+			err = errors.New("the confirm passphrase does not match the expected one")
 			return
 		}
-		if err = d.Parent().Build(); err != nil {
-			return
-		}
-		d.Parent().Show()
-	})
+	}
+	if err = d.App().Login(p); err != nil {
+		return
+	}
+
+	// What's next?
+	var l []*safe.Tag
+	l, err = d.App().ListTagByNames()
+	if err != nil {
+		return
+	}
+	if len(l) == 0 {
+		// New be!
+		d.Parent().ShowTagDialog()
+		return
+	}
+	if err = d.Parent().Build(); err != nil {
+		return
+	}
+	d.Parent().Show()
 }
 
 // Reset ...
@@ -98,6 +96,7 @@ func (d *SignDialog) Reset() (err error) {
 			d.Log("reset")
 		}
 	}()
+
 	// Input fields
 	if err = d.WriteEntry(signPassphrase, ""); err != nil {
 		return

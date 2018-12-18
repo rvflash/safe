@@ -19,49 +19,53 @@ type TagDialog struct {
 // Init ...
 func (d *TagDialog) Init() (err error) {
 	// Cancellation.
-	err = d.ButtonClicked(tagCancel, func() {
-		d.Log("cancelled")
-		d.Hide()
-	})
-	if err != nil {
+	if err = d.Closed(d.Hide); err != nil {
+		return
+	}
+	if err = d.ButtonClicked(tagCancel, d.Hide); err != nil {
 		return
 	}
 
 	// Creation.
-	return d.ButtonClicked(tagSubmit, func() {
-		var (
-			n   string
-			err error
-		)
-		defer func() {
-			if err != nil {
-				d.Log("err=%q", err.Error())
-				if err = d.Error(tagError, err.Error()); err != nil {
-					d.Log("fails to display the error: %s", err)
-				}
-			} else {
-				d.Log("created")
-				d.Hide()
-			}
-		}()
-		n, err = d.ReadEntry(tagName)
+	if err = d.EnterPressed(tagName, d.create); err != nil {
+		return
+	}
+	return d.ButtonClicked(tagSubmit, d.create)
+}
+
+func (d *TagDialog) create() {
+	var (
+		n   string
+		err error
+	)
+	defer func() {
 		if err != nil {
-			return
-		}
-		_, err = d.App().CreateTag(n)
-		if err != nil {
-			return
-		}
-		if d.Parent().Window().GetChildren() == nil {
-			// New be!
-			if err = d.Parent().Build(); err != nil {
-				return
+			d.Log("err=%q", err.Error())
+			if err = d.Error(tagError, err.Error()); err != nil {
+				d.Log("fails to display the error: %s", err)
 			}
-			d.Parent().Show()
 		} else {
-			err = d.Parent().AddTag(n)
+			d.Log("created")
+			d.Hide()
 		}
-	})
+	}()
+	n, err = d.ReadEntry(tagName)
+	if err != nil {
+		return
+	}
+	_, err = d.App().CreateTag(n)
+	if err != nil {
+		return
+	}
+	if d.Parent().Window().GetChildren() == nil {
+		// New be!
+		if err = d.Parent().Build(); err != nil {
+			return
+		}
+		d.Parent().Show()
+	} else {
+		err = d.Parent().AddTag(n)
+	}
 }
 
 // Reset ...
@@ -75,6 +79,9 @@ func (d *TagDialog) Reset() (err error) {
 	}()
 	// Input field
 	if err = d.WriteEntry(tagName, ""); err != nil {
+		return
+	}
+	if err = d.Focus(tagName); err != nil {
 		return
 	}
 	// Error message
