@@ -6,12 +6,11 @@ RUN dnf -y update; dnf clean all
 # fundamental pkg
 RUN dnf -y install file gcc make man sudo tar git; dnf clean all
 
-# golang (install)
+# golang 1.11
 ENV APPBIN="/go/bin" \
     APPDIR="/go/src/github.com/rvflash/safe" \
     GOPATH="/go" \
     GOZIP="go1.11.4.linux-amd64.tar.gz" \
-    MINGW_PATH="/usr/x86_64-w64-mingw32/sys-root/mingw" \
     PATH="$PATH:/usr/local/go/bin"
 
 RUN curl -O -s https://dl.google.com/go/$GOZIP && \
@@ -21,6 +20,7 @@ ADD . "$APPDIR"
 VOLUME "$APPDIR"
 
 # mingw64 & dependecies
+ENV MINGW_PATH="/usr/x86_64-w64-mingw32/sys-root/mingw"
 RUN dnf -y install \
     mingw64-gcc \
     mingw64-cairo mingw64-cairo-static cairo cairo-devel \
@@ -38,6 +38,19 @@ RUN dnf -y install \
 WORKDIR "/go"
 RUN go get github.com/gotk3/gotk3/gtk
 
+# -- linux
+ENV CC=gcc \
+    CGO_ENABLED=1 \
+    GOOS=linux \
+    GOARCH=amd64
+
+RUN go install github.com/gotk3/gotk3/gtk
+
+WORKDIR "$APPDIR/cmd/safe"
+RUN  GO111MODULE=on \
+     go build -o "$APPBIN/linux/safe.linux.amd64"
+
+# -- windows
 ENV CC=x86_64-w64-mingw32-gcc \
     CGO_ENABLED=1 \
     CGO_LDFLAGS_ALLOW="-Wl,-luuid" \
@@ -47,27 +60,23 @@ ENV CC=x86_64-w64-mingw32-gcc \
 
 RUN go install github.com/gotk3/gotk3/gtk
 
-# safe (on windows)
 # to copy only ddl outside, get the CONTAINER_ID and copy them:
 # ~ docker ps -alq
-# ~ docker cp <CONTAINER_ID>:<MINGW_PATH>/bin cmd/safe/bin/windows
+# ~ docker cp <CONTAINER_ID>:<MINGW_PATH>/bin <OUTSIDE_PATH>
 WORKDIR "$APPDIR/cmd/safe"
-
 RUN cp -ra "$MINGW_PATH/bin/." "$APPBIN/windows/" && \
     cp -ra "$MINGW_PATH/share/icons" "$APPBIN/windows/" && \
     GO111MODULE=on \
     go build -ldflags "-H windowsgui" -o "$APPBIN/windows/safe.windows.amd64.exe"
 
-# releases
+# build releases
 WORKDIR "$APPBIN"
 RUN echo "#!/bin/sh -e" > build.sh && \
+    echo "tar -zcvf $APPDIR/safe.linux.amd64.tar.gz linux" >> build.sh && \
     echo "tar -zcvf $APPDIR/safe.windows.amd64.tar.gz windows" >> build.sh && \
     chmod +x build.sh
 
 CMD ["./build.sh"]
-
-# safe (on linux)
-#GOOS=linux CC=clang CXX=clang++ go build -o "$APPBIN/linux/safe.linux.amd64"
 
 # To build it:
 # ~ docker build -t safe .
