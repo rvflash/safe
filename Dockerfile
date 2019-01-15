@@ -4,7 +4,7 @@ FROM fedora:27
 RUN dnf -y update; dnf clean all
 
 # fundamental pkg
-RUN dnf -y install file gcc make man sudo tar git; dnf clean all
+RUN dnf -y install file gcc make man sudo git rsync; dnf clean all
 
 # golang 1.11
 ENV APPBIN="/go/bin" \
@@ -15,28 +15,28 @@ ENV APPBIN="/go/bin" \
 
 RUN curl -O -s https://dl.google.com/go/$GOZIP && \
     tar -xzf $GOZIP -C /usr/local && rm $GOZIP && \
-    mkdir -p "$APPBIN/"{darwin,linux,windows} && mkdir -p "$APPDIR"
+    mkdir -p "$APPBIN/"{darwin,linux,windows}/share && \
+    mkdir -p "$APPDIR"
 ADD . "$APPDIR"
 VOLUME "$APPDIR"
 
 # mingw64 & dependecies
-ENV MINGW_PATH="/usr/x86_64-w64-mingw32/sys-root/mingw"
 RUN dnf -y install \
-    mingw64-gcc \
-    mingw64-cairo mingw64-cairo-static cairo cairo-devel \
-    mingw64-freetype freetype freetype-devel \
-    mingw64-gtk3 gtk3 gtk3-devel \
-    mingw64-glib2-static glib2 glib2-devel \
-    mingw64-pango pango pango-devel
-
-#RUN dnf -y install mingw64-poppler poppler poppler-devel
-#RUN dnf -y install mingw64-winpthreads mingw64-winpthreads-static
-#RUN dnf -y install mingw64-harfbuzz harfbuzz harfbuzz-devel
-#RUN dnf -y install atk atk-devel
-
+    mingw32-gcc mingw64-gcc \
+    mingw32-cairo mingw32-cairo-static mingw64-cairo mingw64-cairo-static cairo cairo-devel \
+    #mingw32-freetype mingw64-freetype freetype freetype-devel \
+    mingw32-gtk3 mingw64-gtk3 gtk3 gtk3-devel \
+    mingw32-glib2-static mingw64-glib2-static glib2-devel\
+    #mingw32-pango mingw64-pango pango pango-devel \
+    ; dnf clean all
+#
 # gtk3 (useful: https://fedoraproject.org/wiki/Packaging:MinGW)
 WORKDIR "/go"
 RUN go get github.com/gotk3/gotk3/gtk
+
+# -- CPU arch: 64 bytes
+ENV MINGW="x86_64-w64-mingw32"
+ENV MINGW_PATH="/usr/$MINGW/sys-root/mingw"
 
 # -- linux
 ENV CC=gcc \
@@ -47,11 +47,11 @@ ENV CC=gcc \
 RUN go install github.com/gotk3/gotk3/gtk
 
 WORKDIR "$APPDIR/cmd/safe"
-RUN  GO111MODULE=on \
-     go build -o "$APPBIN/linux/safe.linux.amd64"
+RUN GO111MODULE=on \
+    go build -o "$APPBIN/$GOOS/safe.$GOOS.$GOARCH"
 
 # -- windows
-ENV CC=x86_64-w64-mingw32-gcc \
+ENV CC="$MINGW-gcc" \
     CGO_ENABLED=1 \
     CGO_LDFLAGS_ALLOW="-Wl,-luuid" \
     GOOS=windows \
@@ -64,15 +64,19 @@ RUN go install github.com/gotk3/gotk3/gtk
 # ~ docker ps -alq
 # ~ docker cp <CONTAINER_ID>:<MINGW_PATH>/bin <OUTSIDE_PATH>
 WORKDIR "$APPDIR/cmd/safe"
-RUN cp -ra "$MINGW_PATH/bin/." "$APPBIN/windows/" && \
-    cp -ra "$MINGW_PATH/share/icons" "$APPBIN/windows/" && \
+RUN cp -ra "$MINGW_PATH/bin/." "$APPBIN/$GOOS/" && \
+    rsync -av "$MINGW_PATH/share/icons" "$APPBIN/windows/share" \
+        --exclude cursors --exclude scalable --exclude scalable-up-to-32 && \
     GO111MODULE=on \
-    go build -ldflags "-H windowsgui" -o "$APPBIN/windows/safe.windows.amd64.exe"
+    go build -ldflags "-H windowsgui" -o "$APPBIN/$GOOS/safe.$GOOS.$GOARCH.exe"
 
-# build releases
+
+# -- build all releases
 WORKDIR "$APPBIN"
 RUN echo "#!/bin/sh -e" > build.sh && \
+    #echo "tar -zcvf $APPDIR/safe.linux.386.tar.gz linux" >> build.sh && \
     echo "tar -zcvf $APPDIR/safe.linux.amd64.tar.gz linux" >> build.sh && \
+    #echo "tar -zcvf $APPDIR/safe.windows.386.tar.gz windows" >> build.sh && \
     echo "tar -zcvf $APPDIR/safe.windows.amd64.tar.gz windows" >> build.sh && \
     chmod +x build.sh
 
@@ -82,3 +86,5 @@ CMD ["./build.sh"]
 # ~ docker build -t safe .
 # And create Zip files:
 # ~ docker run -v "$(pwd)":/go/src/github.com/rvflash/safe safe
+# Or see details about configs:
+# ~ docker run -ti safe bash
