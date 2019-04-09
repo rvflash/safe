@@ -18,7 +18,6 @@ func (s *Safe) CreateTag(t *safe.Tag) error {
 
 // DeleteTag implements the TagService.
 func (s *Safe) DeleteTag(key string) error {
-	// todo Check if it is still used?
 	return s.delete(TagTable, key)
 }
 
