@@ -6,7 +6,7 @@ package app
 
 import "github.com/rvflash/safe"
 
-// SignUp ...
+// SignUp creates the owner if not exists and signs in.
 func (s *Safe) SignUp(pass string) (err error) {
 	p := safe.NewPassPhrase(pass)
 	if err = s.db.CreateOwner(p); err == nil {
@@ -15,7 +15,7 @@ func (s *Safe) SignUp(pass string) (err error) {
 	return
 }
 
-// SignIn ...
+// SignIn signs in the owner if the password is valid.
 func (s *Safe) SignIn(pass string) (ok bool) {
 	p := safe.NewPassPhrase(pass)
 	if ok = s.db.IsOwner(p); ok {
@@ -24,7 +24,7 @@ func (s *Safe) SignIn(pass string) (ok bool) {
 	return
 }
 
-// Login ...
+// Login deals with new or not owner to login it .
 func (s *Safe) Login(pass string) error {
 	if !s.db.HasOwner() {
 		return s.SignUp(pass)
@@ -35,14 +35,16 @@ func (s *Safe) Login(pass string) error {
 	return nil
 }
 
-// LogOut ..
+// LogOut disconnects the owner.
 func (s *Safe) LogOut() {
 	s.mu.Lock()
 	s.log = nil
 	s.mu.Unlock()
 }
 
-// Logged ...
+// Logged returns an error:
+// > if the owner is unknown
+// > if the owner is not logged
 func (s *Safe) Logged() error {
 	if !s.db.HasOwner() {
 		return ErrNotFound

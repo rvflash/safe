@@ -18,7 +18,7 @@ type Login struct {
 	Note     string `json:"note,omitempty"`
 }
 
-// CreateVault ...
+// CreateVault creates a new vault.
 func (s *Safe) CreateVault(name, tag string, data Login) (*safe.Vault, error) {
 	h, err := s.hash()
 	if err != nil {
@@ -39,7 +39,7 @@ func (s *Safe) CreateVault(name, tag string, data Login) (*safe.Vault, error) {
 	return v, s.db.CreateVault(v)
 }
 
-// DeleteVault ...
+// DeleteVault deletes a vault by its name and tag.
 func (s *Safe) DeleteVault(name, tag string) error {
 	h, err := s.hash()
 	if err != nil {
@@ -49,7 +49,7 @@ func (s *Safe) DeleteVault(name, tag string) error {
 	return s.db.DeleteVault(string(v.Key()))
 }
 
-// ListVaultByNames ...
+// ListVaultByNames lists all tags prefixed by the given value and  using this tag.
 func (s *Safe) ListVaultByNames(tag, prefix string) ([]*safe.Vault, error) {
 	h, err := s.hash()
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *Safe) ListVaultByNames(tag, prefix string) ([]*safe.Vault, error) {
 	return d, nil
 }
 
-// Vault ...
+// Vault returns the vault by its name and tag.
 func (s *Safe) Vault(name, tag string) (*safe.Vault, error) {
 	h, err := s.hash()
 	if err != nil {
@@ -72,7 +72,7 @@ func (s *Safe) Vault(name, tag string) (*safe.Vault, error) {
 	return s.db.Vault(h, string(v.Key()))
 }
 
-// UpdateVault ...
+// UpdateVault updates the vault.
 func (s *Safe) UpdateVault(name, tag string, data Login) (*safe.Vault, error) {
 	// Retrieves it
 	v, err := s.Vault(name, tag)
