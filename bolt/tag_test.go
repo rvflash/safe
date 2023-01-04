@@ -68,7 +68,7 @@ func TestSafe_Tags(t *testing.T) {
 			t.Errorf("%d. mismatch error: got=%q exp=%q", i, err, tt.errList)
 		}
 		if !equalTags(list, tt.list) {
-			t.Errorf("%d. mismatch tags: got=%q exp=%q", i, list, tt.list)
+			t.Errorf("%d. mismatch tags: got=%v exp=%v", i, list, tt.list)
 		}
 	}
 }

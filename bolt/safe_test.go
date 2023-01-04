@@ -6,7 +6,6 @@ package bolt_test
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -36,12 +35,12 @@ func TestOpen(t *testing.T) {
 
 func unknownDir() (string, error) {
 	// Creates a new one in default  temporary directory.
-	name, err := ioutil.TempDir("", "safe")
+	name, err := os.MkdirTemp("", "safe")
 	if err != nil {
 		return "", err
 	}
 	// Removes it (safely)
-	if err = os.Remove(name); err != nil {
+	if err = os.RemoveAll(name); err != nil {
 		return "", err
 	}
 	return name, nil

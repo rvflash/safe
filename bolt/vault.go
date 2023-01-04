@@ -8,9 +8,10 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/coreos/bbolt"
 	"github.com/rvflash/safe"
 	"github.com/rvflash/safe/crypto"
+
+	bolt "go.etcd.io/bbolt"
 )
 
 // CreateVault implements the VaultService interface.

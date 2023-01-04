@@ -11,8 +11,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/coreos/bbolt"
 	"github.com/rvflash/safe"
+
+	bolt "go.etcd.io/bbolt"
 )
 
 // Lists of data tables.
