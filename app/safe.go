@@ -27,7 +27,7 @@ var (
 // An empty Dir is treated as ".".
 type Dir string
 
-// Join joins the given ptha to the current directory.
+// Join joins the given path to the current directory.
 func (d Dir) Join(path string) string {
 	return filepath.Clean(filepath.Join(d.String(), path))
 }

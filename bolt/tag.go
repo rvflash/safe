@@ -7,8 +7,9 @@ package bolt
 import (
 	"encoding/json"
 
-	"github.com/coreos/bbolt"
 	"github.com/rvflash/safe"
+
+	bolt "go.etcd.io/bbolt"
 )
 
 // CreateTag implements the TagService.
