@@ -28,17 +28,13 @@ func NewSearchEntry(placeholder string, search FuncOne, margin ...int) (*gtk.Sea
 	w.SetMarginEnd(right)
 	w.SetMarginStart(left)
 	w.SetMarginTop(top)
-	if _, err = w.Connect("search-changed", func(e *gtk.SearchEntry) {
+	_ = w.Connect("search-changed", func(e *gtk.SearchEntry) {
 		s, _ := e.GetText()
 		search(s)
-	}); err != nil {
-		return nil, err
-	}
-	if _, err = w.Connect("stop-search", func() {
+	})
+	_ = w.Connect("stop-search", func() {
 		search("")
-	}); err != nil {
-		return nil, err
-	}
+	})
 	return w, nil
 }
 
@@ -53,9 +49,7 @@ func NewButton(label string, clicked Func, margin ...int) (*gtk.Button, error) {
 	w.SetMarginEnd(right)
 	w.SetMarginStart(left)
 	w.SetMarginTop(top)
-	if _, err = w.Connect("clicked", clicked); err != nil {
-		return nil, err
-	}
+	_ = w.Connect("clicked", clicked)
 	return w, nil
 }
 
@@ -70,7 +64,7 @@ func NewLabel(label, font string, margin ...int) (*gtk.Label, error) {
 	w.SetMarginEnd(right)
 	w.SetMarginStart(left)
 	w.SetMarginTop(top)
-	w.SetFont(font)
+	//w.SetFont(font) // @deprecated
 
 	return w, nil
 }

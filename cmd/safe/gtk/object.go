@@ -48,11 +48,8 @@ func (o *Object) IObject() glib.IObject {
 // Closed ...
 func (o *Object) Closed(fn func()) (err error) {
 	d := o.main.(*gtk.Dialog)
-	_, err = d.Connect("response", fn)
-	if err != nil {
-		return
-	}
-	_, err = d.Connect("delete-event", func() bool {
+	_ = d.Connect("response", fn)
+	_ = d.Connect("delete-event", func() bool {
 		return true
 	})
 	return
@@ -104,11 +101,11 @@ func (o *Object) connect(signal string, id string, fn Func) (err error) {
 	}
 	switch b := e.(type) {
 	case *gtk.Button:
-		_, err = b.Connect(signal, fn)
+		_ = b.Connect(signal, fn)
 	case *gtk.RadioButton:
-		_, err = b.Connect(signal, fn)
+		_ = b.Connect(signal, fn)
 	case *gtk.Entry:
-		_, err = b.Connect(signal, fn)
+		_ = b.Connect(signal, fn)
 	default:
 		err = ErrContainer
 	}
@@ -116,7 +113,7 @@ func (o *Object) connect(signal string, id string, fn Func) (err error) {
 }
 
 // Focus ...
-func (o *Object) Focus(id string)  (err error) {
+func (o *Object) Focus(id string) (err error) {
 	e, err := o.ID(id)
 	if err != nil {
 		return
