@@ -22,9 +22,7 @@ func NewWindow(app *app.Safe, log Logger, title string, width, height int) (*Win
 	w.SetIconName("dialog-password")
 
 	// Main windows, destroys on closing.
-	if _, err = w.Connect("destroy", gtk.MainQuit); err != nil {
-		return nil, err
-	}
+	_ = w.Connect("destroy", gtk.MainQuit)
 	// Deals with clipboard.
 	c, err := NewClipboard()
 	if err != nil {

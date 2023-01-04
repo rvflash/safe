@@ -1,4 +1,4 @@
-FROM fedora:27
+FROM fedora:37
 
 # basics
 RUN dnf -y update; dnf clean all
@@ -6,11 +6,11 @@ RUN dnf -y update; dnf clean all
 # fundamental pkg
 RUN dnf -y install file gcc make man sudo git rsync; dnf clean all
 
-# golang 1.11
+# golang 1.19
 ENV APPBIN="/go/bin" \
     APPDIR="/go/src/github.com/rvflash/safe" \
     GOPATH="/go" \
-    GOZIP="go1.11.4.linux-amd64.tar.gz" \
+    GOZIP="go1.19.4.linux-amd64.tar.gz" \
     PATH="$PATH:/usr/local/go/bin"
 
 RUN curl -O -s https://dl.google.com/go/$GOZIP && \
@@ -32,7 +32,6 @@ RUN dnf -y install \
 #
 # gtk3 (useful: https://fedoraproject.org/wiki/Packaging:MinGW)
 WORKDIR "/go"
-RUN go get github.com/gotk3/gotk3/gtk
 
 # -- CPU arch: 64 bytes
 ENV MINGW="x86_64-w64-mingw32"
@@ -44,9 +43,8 @@ ENV CC=gcc \
     GOOS=linux \
     GOARCH=amd64
 
-RUN go install github.com/gotk3/gotk3/gtk
-
 WORKDIR "$APPDIR/cmd/safe"
+RUN go mod download
 RUN GO111MODULE=on \
     go build -o "$APPBIN/$GOOS/safe.$GOOS.$GOARCH"
 
@@ -58,12 +56,11 @@ ENV CC="$MINGW-gcc" \
     GOARCH=amd64 \
     PKG_CONFIG_PATH="$MINGW_PATH/lib/pkgconfig"
 
-RUN go install github.com/gotk3/gotk3/gtk
-
 # to copy only ddl outside, get the CONTAINER_ID and copy them:
 # ~ docker ps -alq
 # ~ docker cp <CONTAINER_ID>:<MINGW_PATH>/bin <OUTSIDE_PATH>
 WORKDIR "$APPDIR/cmd/safe"
+RUN go mod download
 RUN cp -ra "$MINGW_PATH/bin/." "$APPBIN/$GOOS/" && \
     rsync -av "$MINGW_PATH/share/icons" "$APPBIN/windows/share" \
         --exclude cursors --exclude scalable --exclude scalable-up-to-32 && \

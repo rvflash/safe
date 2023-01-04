@@ -146,7 +146,7 @@ func (t *TreeView) onChanged(changed FuncTwo) error {
 	if err != nil {
 		return err
 	}
-	_, err = t.s.Connect("changed", func(c *gtk.TreeSelection) {
+	_ = t.s.Connect("changed", func(c *gtk.TreeSelection) {
 		m, i, ok := t.s.GetSelected()
 		if !ok {
 			return
@@ -163,7 +163,7 @@ func (t *TreeView) onChanged(changed FuncTwo) error {
 		// ex: tag and vault names (at colID #0)
 		changed(n, s)
 	})
-	return err
+	return nil
 }
 
 // Len ...

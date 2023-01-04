@@ -7,8 +7,9 @@ package bolt
 import (
 	"bytes"
 
-	"github.com/coreos/bbolt"
 	"github.com/rvflash/safe"
+
+	bolt "go.etcd.io/bbolt"
 )
 
 // todo adds UpdateOwner with modification of all vaults.
